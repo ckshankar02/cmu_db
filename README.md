@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 15-445 Database Systems
 # SQLite Project Source Code
 
@@ -61,3 +62,7 @@ https://sqlite.org/vtab.html
 * delete empty page from table heap when delete tuple
 * implement delete table, with empty page bitmap in disk manager (how to persistent?)
 * index: unique/dup key, variable key
+=======
+# cmu_db
+Project_1
+>>>>>>> ff18aef369d0315cfeccbf2f5c5f4f9b7a397d4d
