@@ -31,7 +31,10 @@ namespace cmudb {
 				int GetGlobalDepth() const;
 				int GetLocalDepth(int bucket_id) const;
 				int GetNumBuckets() const;
+				int GetBucketID(size_t hash_result) const;
 				// lookup and modifier
+				bool FindByBucketID(int bkt_id, const V &value) const;
+				void RearrangeHashDir(int bkt_id);
 				bool Find(const K &key, V &value) override;
 				bool Remove(const K &key) override;
 				void Insert(const K &key, const V &value) override;
@@ -44,7 +47,10 @@ namespace cmudb {
 				struct buckets{
 					int local_depth;
 					std::vector<V> bucket;
-				};	
-				std::vector<struct buckets *> hash_dir;
+				};
+
+				std::vector<struct buckets> local_bkts;	
+				std::vector<int> hash_dir;
+				
 		};
 } // namespace cmudb
