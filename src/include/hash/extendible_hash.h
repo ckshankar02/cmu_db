@@ -15,6 +15,10 @@
 
 #include "hash/hash_table.h"
 
+#include GLOBAL_DEPTH 1
+#include  LOCAL_DEPTH 1
+
+
 namespace cmudb {
 
 template <typename K, typename V>
@@ -35,5 +39,19 @@ public:
 
 private:
   // add your own member variables here
+
+	int global_depth; //Maintains the global_depth
+	int bucket_size;  //Maintains the local bucket size
+	
+	struct bucket {
+		int local_depth; // local depth of the each bucket
+		std::vector<std::pair<K, V>> kv_pairs; //Key Value pairs
+	};
+	
+	//Vector of buckets
+	std::vector<bucket *> buckets;
+
+	//Hash directory - maintains the index of the vector it is pointing to
+	std::vector<int> hash_dir;
 };
 } // namespace cmudb
