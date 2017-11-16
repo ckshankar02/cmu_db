@@ -27,13 +27,14 @@ namespace cmudb {
 				ExtendibleHash(size_t size);
 				// helper function to generate hash addressing
 				size_t HashKey(const K &key);
+				void DumpHash();
 				// helper function to get global & local depth
 				int GetGlobalDepth() const;
 				int GetLocalDepth(int bucket_id) const;
 				int GetNumBuckets() const;
 				int GetBucketID(size_t hash_result) const;
 				// lookup and modifier
-				bool FindByBucketID(int bkt_id, const V &value) const;
+				bool FindByBucketID(int bkt_id, const K &key, const V &value);
 				void RearrangeHashDir(int bkt_id);
 				bool Find(const K &key, V &value) override;
 				bool Remove(const K &key) override;
@@ -44,9 +45,15 @@ namespace cmudb {
 				int global_depth;
 				int num_bkts;
 				size_t bkt_size;
+				
+				struct key_value {
+					K k;
+					V v;
+				};
+
 				struct buckets{
 					int local_depth;
-					std::vector<V> bucket;
+					std::vector<struct key_value> bucket;
 				};
 
 				std::vector<struct buckets> local_bkts;	

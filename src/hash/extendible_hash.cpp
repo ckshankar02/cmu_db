@@ -17,7 +17,7 @@ namespace cmudb {
 			global_depth = GDEPTH;
 			num_bkts = GDEPTH;
 			
-			for(i=0;i<global_depth;i++){
+			for(i=0;i<(1<<global_depth);i++){
 				buckets bkt;
 				bkt.local_depth = LDEPTH;
 				local_bkts.push_back(bkt);
@@ -27,12 +27,27 @@ namespace cmudb {
 			num_bkts = GDEPTH;
 		}
 
+
+	template <typename K, typename V>
+		void ExtendibleHash<K,V>::DumpHash() {
+			int i;
+			std::cout<<"**********************\nGlobal Depth:" << global_depth << std::endl;
+			for(i=0;i<hash_dir.size();i++) {
+				std::cout<<"Entry "<< i <<" contents" << std::endl;
+				std::cout<<"Local Index:"<< hash_dir[i] << std::endl;
+				std::cout<<"Local Depth:"<< local_bkts[hash_dir[i]].local_depth << std::endl;
+				std::cout<<"Number of elements:" << local_bkts[hash_dir[i]].bucket.size() << std::endl;
+			}
+			std::cout << std::endl;
+		}
+
 	/*
 	 * helper function to calculate the hashing address of input key
 	 */
 	template <typename K, typename V>
 		size_t ExtendibleHash<K, V>::HashKey(const K &key) {
-			return 0;
+			return std::hash<K>{} (key);			
+			//return 0;
 		}
 
 	/*
@@ -70,13 +85,16 @@ namespace cmudb {
 
 	
 	template <typename K, typename V>
-		bool ExtendibleHash<K,V>::FindByBucketID(int bkt_id, const V &value) const {
-			typename std::vector<V>::const_iterator bkt_it;
+		bool ExtendibleHash<K,V>::FindByBucketID(int bkt_id, const K &key, const V &value) {
+			typename std::vector<struct key_value>::iterator it;
 	
-			for(bkt_it  = local_bkts[bkt_id].bucket.begin(); 
-			    bkt_it != local_bkts[bkt_id].bucket.end(); ++bkt_it) {
-				if(*bkt_it == value) return true;
-			}
+			for(it  = local_bkts[bkt_id].bucket.begin(); 
+			    it != local_bkts[bkt_id].bucket.end(); it++) {
+				std::cout<<"Inside for:" << bkt_id << std::endl;
+				if(it->k == key) {
+					return true;
+				}
+			}	
 
 			return false;	
 		}
@@ -88,7 +106,18 @@ namespace cmudb {
 	template <typename K, typename V>
 		bool ExtendibleHash<K, V>::Find(const K &key, V &value) {
 			int bkt_id = GetBucketID(HashKey(key));
-			return FindByBucketID(bkt_id, value);
+			typename std::vector<struct key_value>::iterator it;
+	
+			for(it = local_bkts[bkt_id].bucket.begin(); 
+			    it != local_bkts[bkt_id].bucket.end(); it++) {
+				std::cout<<"Inside for:" << bkt_id << std::endl;
+				if(it->k == key) {
+					std::cout<<"Key matched\n";
+					return true;
+				}
+			}
+			return false;	
+			//return FindByBucketID(bkt_id, key, value);
 		}
 
 	/*
@@ -98,9 +127,17 @@ namespace cmudb {
 	template <typename K, typename V>
 		bool ExtendibleHash<K, V>::Remove(const K &key) {
 			int bkt_id = GetBucketID(HashKey(key));
-			local_bkts[bkt_id].bucket.clear();
-			return true;
-			//return false;
+		        typename std::vector<struct key_value>::iterator it;	
+
+			for(it = local_bkts[bkt_id].bucket.begin();
+			    it != local_bkts[bkt_id].bucket.end(); it++) {
+				if(it->k == key) {
+					std::cout<<"Inside Remove: "<< bkt_id << std::endl;
+					it = local_bkts[bkt_id].bucket.erase(it);
+					return true;
+				}			
+			}
+			return false;
 		}
 
 
@@ -108,11 +145,11 @@ namespace cmudb {
 		void ExtendibleHash<K,V>::RearrangeHashDir(int bkt_id) {
 			int hash_dir_idx = 0;
 			int depth_diff = global_depth - local_bkts[bkt_id].local_depth;
-			local_bkts[bkt_id].local_depth++;
-			for(int i=0;i<depth_diff;i++) {
+			for(int i=0;i<=depth_diff;i++) {
 				hash_dir_idx  = bkt_id |(i<<local_bkts[bkt_id].local_depth);
 				hash_dir[hash_dir_idx] = bkt_id;
 			}	
+			local_bkts[bkt_id].local_depth++;
 		}
 
 	/*
@@ -124,31 +161,56 @@ namespace cmudb {
 		void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 		size_t hash_result = HashKey(key);
 		int bkt_id = GetBucketID(hash_result);
-		int new_idx = 0;
-	
+		int new_idx = 0;		
+		//key_value kv;	
+			
+		typename std::vector<struct key_value>::iterator bkt_iter;	
 
-		if(FindByBucketID(bkt_id, value)) return;
+
+		if(FindByBucketID(bkt_id, key, value)) return;
 			
 		if(local_bkts[bkt_id].bucket.size() == bkt_size) {
 			if(global_depth <= local_bkts[bkt_id].local_depth) {
 				//CKS: Increase the hash directory size
 				std::vector<int>::iterator iter;
 				size_t old_size = hash_dir.size();
-				hash_dir.resize(old_size);
+				hash_dir.resize(2*old_size);
+				std::cout<<old_size <<","<<hash_dir.size() << std::endl;
 				global_depth++;
 
-				for(iter = hash_dir.begin(); iter != hash_dir.begin()+old_size; ++iter) {
+				for(iter = hash_dir.begin(); iter != hash_dir.begin()+old_size; iter++) {
 					*(iter+old_size) = *iter;
 				}
 			}	
 			//CKS: Split the buckets					
 			new_idx = local_bkts.size();	
-			local_bkts.resize(new_idx+1);				
+			local_bkts.resize(new_idx+1);
+			local_bkts[new_idx].local_depth = local_bkts[bkt_id].local_depth;				
 
 			//CKS: Rearrange the hash directory to bucket links
 			RearrangeHashDir(bkt_id); //old bucket
 			RearrangeHashDir(new_idx); //new bucket 
-		} 
+	
+			//Redistribute the elements of old bkt.
+			
+			for(bkt_iter = local_bkts[bkt_id].bucket.begin();
+			    bkt_iter != local_bkts[bkt_id].bucket.end(); bkt_iter++){
+				int tmp_bkt_id = GetBucketID(HashKey(bkt_iter->k));
+				if(tmp_bkt_id == bkt_id) continue;
+				else {
+					key_value tmp_kv;
+					tmp_kv.k = bkt_iter->k;
+					tmp_kv.v = bkt_iter->v;
+					local_bkts[tmp_bkt_id].bucket.push_back(tmp_kv);
+					bkt_iter = local_bkts[bkt_id].bucket.erase(bkt_iter);
+				}	
+			}
+		}
+			
+		key_value new_kv;
+		new_kv.k = key;
+		new_kv.v = value;
+		local_bkts[bkt_id].bucket.push_back(new_kv); 
 	}
 
 	template class ExtendibleHash<page_id_t, Page *>;
