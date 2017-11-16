@@ -122,13 +122,50 @@ template <typename K, typename V>
 void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 	size_t bkt_id = GetBucketID(key);
 	std::vector<bucket *>::iterator iter;
+	int new_bkt_idx = -1;
+
 
 	for(iter = buckets[bkt_id].begin(); iter != buckets[bkt_id].end(); iter++) {
 		if(iter->kv.first == key) {
 			*(iter->kv.second) = value;
+			return;
 		}
-	}	
- 
+	}
+
+	//check if bucket spliting or hash directory expansion is required.
+	if(buckets[bkt_id].size() == bucket_size) {
+		//Hash directory expansion	
+		if(global_depth == buckets[bkt_id]->local_depth) {
+			int i = 0;			
+			int prev_size = 0;
+
+			//Double the number of hash directory entries.
+			global_depth++;
+			prev_size = hash_dir.size();
+			hash_dir.resize(1<<global_depth);		
+		
+			//Initially make the new entries still point to old buckets.						
+			for(i=0;i<prev_size;i++) {
+				hash_dir[i+prev_size] = hash_dir[i];
+			}	
+		}
+		
+		//Create a new bucket 
+		bucket* bkt = new bucket;
+		new_bkt_idx = buckets.size();
+		buckets.push_back(bkt);
+
+
+		//Increase the local depth for both old and new buckets	
+		buckets[bkt_id]->local_depth++;
+		bucket->local_depth = buckets[bkt_id]->local_depth;
+
+		//Rearrange Hash directory pointers to point to new bucket	
+		for(i=0;i<(global_depth - 				
+	}
+ 	
+	//make a key value pair
+	
 }
 
 template class ExtendibleHash<page_id_t, Page *>;
