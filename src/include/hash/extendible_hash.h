@@ -13,6 +13,8 @@
 #include <vector>
 #include <string>
 
+#include <mutex>
+
 #include "hash/hash_table.h"
 
 #define GLOBAL_DEPTH 1
@@ -45,19 +47,25 @@ public:
 private:
   // add your own member variables here
 
-	int global_depth; //Maintains the global_depth
-	int bucket_size;  //Maintains the local bucket size
+	uint64_t global_depth; //Maintains the global_depth
+	uint64_t bucket_size;  //Maintains the local bucket size
 	
 	struct bucket {
-		unsigned int local_index;
-		int local_depth; // local depth of the each bucket
+		mutable std::mutex bkt_mutex; //Bucket lock
+		uint64_t logical_idx; //Logical index used for reverse lookup
+		uint64_t local_depth; //Local depth of the each bucket
 		std::vector<std::pair<K, V>> kv_pairs; //Key Value pairs
 	};
 	
-	//Vector of buckets
+	//Vector to hold all the buckets
 	std::vector<bucket *> buckets;
 
-	//Hash directory - maintains the index of the vector it is pointing to
-	std::vector<int> hash_dir;
+	//Hash directory - maintains the bucket's indexes
+	std::vector<uint64_t> hash_dir;
+
+	//Director lock and readers/writers counters
+	mutable std::mutex dir_mutex;
+	mutable std::mutex rd_mutex;
+	uint64_t readers;
 };
 } // namespace cmudb

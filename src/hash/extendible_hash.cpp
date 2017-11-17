@@ -11,7 +11,10 @@ namespace cmudb {
  */
 template <typename K, typename V>
 ExtendibleHash<K, V>::ExtendibleHash(size_t size) {
-	int i = 0;	
+	uint64_t i = 0;	
+	readers = 0;
+		
+	dir_mutex.lock();
 	bucket_size = size; // size of each local bucket.
 	global_depth = GLOBAL_DEPTH;
 	
@@ -19,13 +22,15 @@ ExtendibleHash<K, V>::ExtendibleHash(size_t size) {
 	for(i=0;i<(1<<global_depth);i++){
 		bucket* bkt = new bucket;
 		bkt->local_depth = LOCAL_DEPTH;
-		bkt->local_index = i;
-			
-		//adding new buckets to the vector 
-		buckets.push_back(bkt); 
-		//New hash entry - points to newly added bucket. 
-		hash_dir.push_back(buckets.size()-1);	
+		bkt->logical_idx = i;
+
+		//Push the new bucket into the vector
+		buckets.push_back(bkt);			
+
+		//New hash entry - holds logical index to the new bucket. 
+		hash_dir.push_back(i);	
 	}
+	dir_mutex.unlock();
 }
 
 
@@ -46,7 +51,8 @@ void ExtendibleHash<K, V>::DumpAll(){
 
 template <typename K, typename V>
 void ExtendibleHash<K, V>::DumpDir(){
-	for(int i=0;i<hash_dir.size();i++) {
+	uint64_t i = 0;
+	for(i=0;i<hash_dir.size();i++) {
 		std::cout<<"hash_dir["<<i<<"] = "<<hash_dir[i]<<std::endl;
 	}
 }
@@ -66,7 +72,10 @@ size_t ExtendibleHash<K, V>::HashKey(const K &key) {
  */
 template <typename K, typename V>
 int ExtendibleHash<K, V>::GetGlobalDepth() const {
-	return global_depth;
+	dir_mutex.lock();
+	uint64_t gd = global_depth;
+	dir_mutex.unlock();
+	return gd;
 }
 
 /*
@@ -75,7 +84,12 @@ int ExtendibleHash<K, V>::GetGlobalDepth() const {
  */
 template <typename K, typename V>
 int ExtendibleHash<K, V>::GetLocalDepth(int bucket_id) const {
-	return buckets[bucket_id]->local_depth;
+	dir_mutex.lock();
+	buckets[bucket_id]->bkt_mutex.lock();
+	uint64_t ld = buckets[bucket_id]->local_depth;
+	buckets[bucket_id]->bkt_mutex.unlock();
+	dir_mutex.unlock();
+	return ld;
 }
 
 /*
@@ -83,7 +97,10 @@ int ExtendibleHash<K, V>::GetLocalDepth(int bucket_id) const {
  */
 template <typename K, typename V>
 int ExtendibleHash<K, V>::GetNumBuckets() const {
-	return buckets.size();
+	dir_mutex.lock();
+	uint64_t bkt_size = buckets.size();
+	dir_mutex.unlock();
+	return bkt_size;
 }
 
 /* 
@@ -91,10 +108,10 @@ int ExtendibleHash<K, V>::GetNumBuckets() const {
  */
 template <typename K, typename V>
 size_t ExtendibleHash<K,V>::GetBucketID(const K &key){
-	size_t hash_result = HashKey(key);
-	size_t gbl_mask = (1<<global_depth) - 1;
+	uint64_t hash_result = HashKey(key);
+	uint64_t gbl_mask = (1<<global_depth) - 1;
 
-	size_t hash_idx = hash_result&gbl_mask;
+	uint64_t hash_idx = hash_result&gbl_mask;
 
 	return hash_dir[hash_idx];	
 }
@@ -106,17 +123,32 @@ size_t ExtendibleHash<K,V>::GetBucketID(const K &key){
  */
 template <typename K, typename V>
 bool ExtendibleHash<K, V>::Find(const K &key, V &value) {
-	size_t bkt_id = GetBucketID(key);
+	rd_mutex.lock();
+	readers++;
+	if(readers == 1) 
+		dir_mutex.lock();
+	rd_mutex.unlock();
+	
+	bool result = false;
+	uint64_t bkt_id = GetBucketID(key);
 	typename std::vector<std::pair<K,V>>::iterator iter;
 
 	for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {	
 		if(iter->first == key) {
 			value = iter->second;
-			return true;
+			result = true;
+			break;
 		}
 	}
 
-	return false;
+
+	rd_mutex.lock();
+	readers--;
+	if(readers == 0) 
+		dir_mutex.unlock();
+	rd_mutex.unlock();
+
+	return result;
 }
 
 /*
@@ -125,17 +157,21 @@ bool ExtendibleHash<K, V>::Find(const K &key, V &value) {
  */
 template <typename K, typename V>
 bool ExtendibleHash<K, V>::Remove(const K &key) {
-	size_t bkt_id = GetBucketID(key);
+	dir_mutex.lock();
+	bool result = false;
+	uint64_t bkt_id = GetBucketID(key);
 	typename std::vector<std::pair<K,V>>::iterator iter;
 
 	for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
 		if(iter->first == key) {
 			iter = buckets[bkt_id]->kv_pairs.erase(iter);
-			return true;
+			result = true;
+			break;
 		}
 	}
+	dir_mutex.unlock();
 
-	return false;
+	return result;
 }
 
 /*
@@ -145,10 +181,11 @@ bool ExtendibleHash<K, V>::Remove(const K &key) {
  */
 template <typename K, typename V>
 void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
-	size_t bkt_id = GetBucketID(key);
+	dir_mutex.lock();	
+	uint64_t bkt_id = GetBucketID(key);
 	typename std::vector<std::pair<K,V>>::iterator iter;
 
-	int new_bkt_idx = -1;
+	uint64_t new_bkt_idx = 0;
 
 	//check if the key is already present, if so, update value and return. 
 	for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
@@ -160,23 +197,20 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 
 	//check if bucket spliting or hash directory expansion is required.
 	if(buckets[bkt_id]->kv_pairs.size() == bucket_size) {
-		std::cout<<"Attempting Split\n";
-		int depth_diff = 0;
-		unsigned int gbl_mask = 0;
-		//int old_local_depth = 0;		
+		uint64_t depth_diff = 0;
+		uint64_t gbl_mask = 0;
+		uint64_t i = 0;
 
 		//Hash directory expansion	
-		if(global_depth <= buckets[bkt_id]->local_depth) {
-			std::cout<<"Hash Resize\n";
-			int prev_size = 0;
+		if(global_depth == buckets[bkt_id]->local_depth) {
+			uint64_t prev_size = hash_dir.size();
 
 			//Double the number of hash directory entries.
 			global_depth++;
-			prev_size = hash_dir.size();
 			hash_dir.resize(1<<global_depth);		
 		
-			//Initially make the new entries still point to old buckets.						
-			for(int i=0;i<prev_size;i++) {
+			//Initially make the new entries still point to old buckets.					
+			for(i=0;i<prev_size;i++) {
 				hash_dir[i+prev_size] = hash_dir[i];
 			}
 		}
@@ -188,8 +222,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 
 
 		//Increase the local depth for both old and new buckets
-		//old_local_depth = buckets[bkt_id]->local_depth;	
-		bkt->local_index = buckets[bkt_id]->local_index | (1<<buckets[bkt_id]->local_depth);
+		bkt->logical_idx = buckets[bkt_id]->logical_idx | (1<<buckets[bkt_id]->local_depth);
 		buckets[bkt_id]->local_depth++;
 		bkt->local_depth = buckets[bkt_id]->local_depth;
 
@@ -197,24 +230,14 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 		depth_diff = global_depth - buckets[bkt_id]->local_depth;
 		gbl_mask = (1<<global_depth)-1;		
 
-		for(int i=0;i<(1<<depth_diff);i++) {
-			//rearranging old bucket pointers
-			unsigned int lcl_idx = 0;
-			unsigned int dir_idx = 0;
+		for(i=0;i<(1<<depth_diff);i++) { 			
+			uint64_t lg_idx = buckets[new_bkt_idx]->logical_idx;
+			uint64_t hd_idx = lg_idx | (i << buckets[new_bkt_idx]->local_depth);
 			
-			lcl_idx = buckets[bkt_id]->local_index;
-			dir_idx = (lcl_idx | (i<<buckets[bkt_id]->local_depth)) & gbl_mask;
-			hash_dir[dir_idx] = bkt_id;
-
-			//rearranging new bucket pointers
-			lcl_idx = buckets[new_bkt_idx]->local_index;
-			dir_idx = (lcl_idx | (i<<buckets[new_bkt_idx]->local_depth)) & gbl_mask;
-			hash_dir[dir_idx] = new_bkt_idx;	
+			hash_dir[hd_idx & gbl_mask] = new_bkt_idx;
 		}
 	
-		DumpDir();
-
-		std::cout<<"Trying to Redistribute "<<bkt_id<<std::endl;
+		iter = buckets[bkt_id]->kv_pairs.begin();
 		while(iter != buckets[bkt_id]->kv_pairs.end()) {
 			//Recompute the bucket index for each key in the old bucket
 			new_bkt_idx = GetBucketID(iter->first);
@@ -225,7 +248,6 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 				new_kv_pair = std::make_pair (iter->first, iter->second);
 				buckets[new_bkt_idx]->kv_pairs.push_back(new_kv_pair);
 			        iter = buckets[bkt_id]->kv_pairs.erase(iter);	
-				std::cout<<"Redistribute"<<std::endl;
 			} 
 			else		
 				++iter;
@@ -258,7 +280,9 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 	new_bkt_idx = GetBucketID(key);
 	
 	if(buckets[new_bkt_idx]->kv_pairs.size() >= bucket_size) {
+		dir_mutex.unlock();
 		Insert(key, value);
+		dir_mutex.lock();
 	}
 	else {
 		//make a key value pair	
@@ -266,6 +290,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 		kv_pair = std::make_pair (key, value);
 		buckets[new_bkt_idx]->kv_pairs.push_back(kv_pair);
 	}
+	dir_mutex.unlock();
 }
 
 template class ExtendibleHash<page_id_t, Page *>;
