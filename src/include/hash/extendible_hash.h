@@ -15,8 +15,8 @@
 
 #include "hash/hash_table.h"
 
-#include GLOBAL_DEPTH 1
-#include  LOCAL_DEPTH 1
+#define GLOBAL_DEPTH 1
+#define  LOCAL_DEPTH 1
 
 
 namespace cmudb {
@@ -37,6 +37,11 @@ public:
   bool Remove(const K &key) override;
   void Insert(const K &key, const V &value) override;
 
+  //Newly added helper functions
+  size_t GetBucketID(const K &key);
+  void DumpAll();
+  void DumpDir();  
+
 private:
   // add your own member variables here
 
@@ -44,6 +49,7 @@ private:
 	int bucket_size;  //Maintains the local bucket size
 	
 	struct bucket {
+		unsigned int local_index;
 		int local_depth; // local depth of the each bucket
 		std::vector<std::pair<K, V>> kv_pairs; //Key Value pairs
 	};

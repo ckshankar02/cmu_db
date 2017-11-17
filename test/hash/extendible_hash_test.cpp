@@ -16,14 +16,25 @@ TEST(ExtendibleHashTest, SampleTest) {
 
   // insert several key/value pairs
   test->Insert(1, "a");
+  test->DumpAll();
   test->Insert(2, "b");
+  test->DumpAll();
   test->Insert(3, "c");
+  test->DumpAll();
   test->Insert(4, "d");
+  test->DumpAll();
   test->Insert(5, "e");
+  test->DumpAll();
   test->Insert(6, "f");
+  test->DumpAll();
   test->Insert(7, "g");
+  test->DumpAll();
   test->Insert(8, "h");
+  test->DumpAll();
   test->Insert(9, "i");
+
+  test->DumpAll();
+
   EXPECT_EQ(2, test->GetLocalDepth(0));
   EXPECT_EQ(3, test->GetLocalDepth(1));
   EXPECT_EQ(2, test->GetLocalDepth(2));
@@ -45,9 +56,19 @@ TEST(ExtendibleHashTest, SampleTest) {
   EXPECT_EQ(1, test->Remove(1));
   EXPECT_EQ(0, test->Remove(20));
 
+/*
+  test->DumpAll();
+  test->Insert(1, "a");
+  std::string result;
+  test->DumpAll();
+  test->Find(1, result);
+  EXPECT_EQ(1, test->Remove(1));
+  test->DumpAll();
+*/
   delete test;
 }
 
+/*
 TEST(ExtendibleHashTest, ConcurrentInsertTest) {
   const int num_runs = 50;
   const int num_threads = 3;
@@ -101,5 +122,5 @@ TEST(ExtendibleHashTest, ConcurrentRemoveTest) {
     EXPECT_EQ(1, test->Find(4, val));
   }
 }
-
+*/
 } // namespace cmudb
