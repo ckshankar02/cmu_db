@@ -64,6 +64,8 @@ template <typename T> bool LRUReplacer<T>::Victim(T &value) {
 	rd_lock();
 		if(!lru.empty()) {
 			value = lru.front();
+			lru.pop_front();
+			exthash->Remove(value);
 			result = true;
 		}
 	rd_unlock();

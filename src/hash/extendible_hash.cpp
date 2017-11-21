@@ -191,7 +191,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 	for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
 		if(iter->first == key) {
 			iter->second = value;
-			dir_mutex.lock();
+			dir_mutex.unlock();
 			return;
 		}
 	}

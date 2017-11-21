@@ -20,9 +20,9 @@ TEST(LRUReplacerTest, SampleTest) {
   lru_replacer.Insert(5);
   lru_replacer.Insert(6);
   lru_replacer.Insert(1);
-//  EXPECT_EQ(6, lru_replacer.Size());
+  EXPECT_EQ(6, lru_replacer.Size());
   
-/*  // pop element from replacer
+  // pop element from replacer
   int value;
   lru_replacer.Victim(value);
   EXPECT_EQ(2, value);
@@ -41,7 +41,6 @@ TEST(LRUReplacerTest, SampleTest) {
   EXPECT_EQ(5, value);
   lru_replacer.Victim(value);
   EXPECT_EQ(1, value);
-*/
 }
 
 } // namespace cmudb
