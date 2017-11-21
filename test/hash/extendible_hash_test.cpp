@@ -47,15 +47,6 @@ TEST(ExtendibleHashTest, SampleTest) {
   EXPECT_EQ(1, test->Remove(1));
   EXPECT_EQ(0, test->Remove(20));
 
-/*
-  test->DumpAll();
-  test->Insert(1, "a");
-  std::string result;
-  test->DumpAll();
-  test->Find(1, result);
-  EXPECT_EQ(1, test->Remove(1));
-  test->DumpAll();
-*/
   delete test;
 }
 

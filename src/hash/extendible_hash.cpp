@@ -191,6 +191,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 	for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
 		if(iter->first == key) {
 			iter->second = value;
+			dir_mutex.lock();
 			return;
 		}
 	}
@@ -252,28 +253,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 			else		
 				++iter;
 		}
-	
-		//Re-distribute key value pairs from old bucket
-		/*for(iter = buckets[bkt_id]->kv_pairs.begin(); 
-			iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
-
-			//Recompute the bucket index for each key in the old bucket
-			new_bkt_idx = GetBucketID(iter->first);
-
-			//If the newly computed index is different, then redistribute.
-			if(new_bkt_idx != bkt_id) {
-				std::pair<K,V> new_kv_pair;
-				new_kv_pair = std::make_pair (iter->first, iter->second);
-				buckets[new_bkt_idx]->kv_pairs.push_back(new_kv_pair);
-			        //iter = buckets[bkt_id]->kv_pairs.erase(iter);	
-				std::cout<<"SCANJEE:Redistributed\n";
-				DumpAll();
-			} else {
-				std::cout<<"Retained:"<<bkt_id<<","<<new_bkt_idx<<std::endl;		
-			}
-		}*/	
 	}
-
 	
 	//Get the new bucket id after spliting(Almost alway the new bucket!!)
 	//This is the actual key that needs to be inserted.

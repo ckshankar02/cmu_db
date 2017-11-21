@@ -12,6 +12,8 @@
 #include "buffer/replacer.h"
 #include "hash/extendible_hash.h"
 
+#include <list>
+
 namespace cmudb {
 
 template <typename T> class LRUReplacer : public Replacer<T> {
@@ -29,17 +31,20 @@ public:
 
   size_t Size();
 
+	void rd_lock();
+
+	void rd_unlock();
+
 private:
   // add your member variables here
-	struct node{
-		T val;
-		node *next;
-		node *prev;
-	};
+	std::list<T> lru; //Maintains the LRU
+	 
+	//HashTable to map value to node address.
+	ExtendibleHash<T, typename std::list<T>::iterator> *exthash;
 
-	node *head, *tail;
-	
-	ExtendibleHash *exhash;
+	std::mutex list_mutex;
+	std::mutex rd_mutex;
+	uint64_t readers;
 };
 
 } // namespace cmudb
