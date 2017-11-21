@@ -31,6 +31,15 @@ public:
 
 private:
   // add your member variables here
+	struct node{
+		T val;
+		node *next;
+		node *prev;
+	};
+
+	node *head, *tail;
+	
+	ExtendibleHash *exhash;
 };
 
 } // namespace cmudb
