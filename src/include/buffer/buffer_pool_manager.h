@@ -34,16 +34,16 @@ public:
 
   bool DeletePage(page_id_t page_id);
 
-	//Helper functions//
+  //Helper functions//
  
-	//Clean up and reset page
-	void CleanPage(Page *tmp_page);
+  //Clean up and reset page
+  void CleanPage(Page *tmp_page);
 
-	//Add a given page to free list
-	//Flushes, erases from lru, 
-	//removes from hash,
-	//adds to free list
-	bool AddToFreeList(Page *tmp_page);	
+  //Add a given page to free list
+  //Flushes, erases from lru, 
+  //removes from hash,
+  //adds to free list
+  bool AddToFreeList(Page *tmp_page); 
 
 
 private:

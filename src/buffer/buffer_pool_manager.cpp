@@ -45,43 +45,43 @@ BufferPoolManager::~BufferPoolManager() {
  * pointer
  */
 Page *BufferPoolManager::FetchPage(page_id_t page_id) { 
-	Page *tmp_page = NULL;
+  Page *tmp_page = NULL;
 
-	latch_.lock();
-	//Page not found
-	if(!page_table_->Find(page_id,tmp_page)) {
-		//Free pages are not available
-		if(free_list_->empty()) {
-			//Fetch a victim page
-			if(!replacer_->Victim(tmp_page)) {
-				latch_.unlock();
-				return nullptr; //all pages are pinned
-			}
+  latch_.lock();
+  //Page not found
+  if(!page_table_->Find(page_id,tmp_page)) {
+    //Free pages are not available
+    if(free_list_->empty()) {
+      //Fetch a victim page
+      if(!replacer_->Victim(tmp_page)) {
+        latch_.unlock();
+        return nullptr; //all pages are pinned
+      }
 
-			//Flush and Cleanse the page
-			if(!AddToFreeList(tmp_page)) {
-				latch_.unlock();
-				return nullptr;
-			}
-		}	 
+      //Flush and Cleanse the page
+      if(!AddToFreeList(tmp_page)) {
+        latch_.unlock();
+        return nullptr;
+      }
+    }  
 
-		//Always fetch from free_list.
-		tmp_page = free_list_->front();
-		free_list_->pop_front();
-		//Update page_id for the page object
-		tmp_page->page_id_ = page_id;
-		disk_manager_.ReadPage(tmp_page->page_id_,
-												tmp_page->data_);
-	}
-		
-	//Set page metadata
-	tmp_page->pin_count_++;
+    //Always fetch from free_list.
+    tmp_page = free_list_->front();
+    free_list_->pop_front();
+    //Update page_id for the page object
+    tmp_page->page_id_ = page_id;
+    disk_manager_.ReadPage(tmp_page->page_id_,
+                        tmp_page->data_);
+  }
+    
+  //Set page metadata
+  tmp_page->pin_count_++;
 
 
-	//Insert page into the page table
-	page_table_->Insert(page_id, tmp_page);
-	latch_.unlock();
-	return tmp_page;
+  //Insert page into the page table
+  page_table_->Insert(page_id, tmp_page);
+  latch_.unlock();
+  return tmp_page;
 }
 
 
@@ -92,28 +92,28 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
  * is_dirty: set the dirty flag of this page
  */
 bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
-	Page *tmp_page = NULL;
+  Page *tmp_page = NULL;
 
-	latch_.lock();
-	if(page_table_->Find(page_id, tmp_page)){
-		//Pin count is already '0'
-		if(!tmp_page->pin_count_) {
-			latch_.unlock();
-			return false;
-		}
-		
-		//Unpin once
-		tmp_page->pin_count_--;
-		
-		if(tmp_page->pin_count_ <= 0) {
-			replacer_->Insert(tmp_page); //Inserting into LRU replacer
-			tmp_page->is_dirty_ = is_dirty; 
-			latch_.unlock();
-			return true;
-		}
-	}	
+  latch_.lock();
+  if(page_table_->Find(page_id, tmp_page)){
+    //Pin count is already '0'
+    if(!tmp_page->pin_count_) {
+      latch_.unlock();
+      return false;
+    }
+    
+    //Unpin once
+    tmp_page->pin_count_--;
+    
+    if(tmp_page->pin_count_ <= 0) {
+      replacer_->Insert(tmp_page); //Inserting into LRU replacer
+      tmp_page->is_dirty_ = is_dirty; 
+      latch_.unlock();
+      return true;
+    }
+  } 
 
-	latch_.unlock();
+  latch_.unlock();
   return false;
 }
 
@@ -124,63 +124,63 @@ bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
  * NOTE: make sure page_id != INVALID_PAGE_ID
  */
 bool BufferPoolManager::FlushPage(page_id_t page_id) { 
-	Page *tmp_page = NULL;
+  Page *tmp_page = NULL;
 
-	latch_.lock();
-	bool found = page_table_->Find(page_id, tmp_page);
+  latch_.lock();
+  bool found = page_table_->Find(page_id, tmp_page);
 
-	//Page Found 
-	if(found && 
-			tmp_page->page_id_ != INVALID_PAGE_ID) {
-		disk_manager_.WritePage(page_id, tmp_page->data_);
-		tmp_page->is_dirty_ = false;
-		latch_.unlock();
-		return true;
-	}	
+  //Page Found 
+  if(found && 
+      tmp_page->page_id_ != INVALID_PAGE_ID) {
+    disk_manager_.WritePage(page_id, tmp_page->data_);
+    tmp_page->is_dirty_ = false;
+    latch_.unlock();
+    return true;
+  } 
 
-	latch_.unlock();
-	//Page not in hash_table
-	return false; 
+  latch_.unlock();
+  //Page not in hash_table
+  return false; 
 }
 
 /*
  * Used to flush all dirty pages in the buffer pool manager
  */
 void BufferPoolManager::FlushAllPages() {
-	latch_.lock();
-	for(uint64_t i=0;i<pool_size_;i++) {
-		if(pages_[i].page_id_ != INVALID_PAGE_ID) {	
-				disk_manager_.WritePage(pages_[i].page_id_,
-																pages_[i].data_);
-				pages_[i].is_dirty_ = false;
-		}
-	}
-	latch_.unlock();
+  latch_.lock();
+  for(uint64_t i=0;i<pool_size_;i++) {
+    if(pages_[i].page_id_ != INVALID_PAGE_ID) { 
+        disk_manager_.WritePage(pages_[i].page_id_,
+                                pages_[i].data_);
+        pages_[i].is_dirty_ = false;
+    }
+  }
+  latch_.unlock();
 
-/*	const uint64_t num_bkts = page_table_->GetNumBuckets();
+/*  const uint64_t num_bkts = page_table_->GetNumBuckets();
 
-	//Iterate through each bucket in the page hash table
-	for(uint64_t i=0; i<num_bkts;i++){
-		//Gets the number of key/value pairs in a given bucket
-		const uint64_t num_entries = 
-											page_table_->GetNumEntriesInBkt(i);
+  //Iterate through each bucket in the page hash table
+  for(uint64_t i=0; i<num_bkts;i++){
+    //Gets the number of key/value pairs in a given bucket
+    const uint64_t num_entries = 
+                      page_table_->GetNumEntriesInBkt(i);
 
-		//Iterates through each of the entries in each bucket
-		for(uint64_t j=0; j<num_entries; j++) {	
-			page_id_t page_id = 0;
-			Page *tmp_page = NULL;
+    //Iterates through each of the entries in each bucket
+    for(uint64_t j=0; j<num_entries; j++) { 
+      page_id_t page_id = 0;
+      Page *tmp_page = NULL;
 
-			//Returns the page_id and Page* for 
-			//a given bucket id and entry
-			page_table_->GetKeyValue(i, j, page_id, tmp_page);
+      //Returns the page_id and Page* for 
+      //a given bucket id and entry
+      page_table_->GetKeyValue(i, j, page_id, tmp_page);
 
-			//Write back to disk if not INVALID
-			if(tmp_page->page_id_ != INVALID_PAGE_ID) {
-				disk_manager_.WritePage(page_id, tmp_page->data_);
-				tmp_page->is_dirty_ = false;
-			}
-		}	
-	}*/
+      //Write back to disk if not INVALID
+      if(tmp_page->page_id_ != INVALID_PAGE_ID) {
+        disk_manager_.WritePage(page_id, tmp_page->data_);
+        tmp_page->is_dirty_ = false;
+      }
+    } 
+  }*/
 }
 
 /**
@@ -193,24 +193,24 @@ void BufferPoolManager::FlushAllPages() {
  * If the page is found within page table, but pin_count != 0, return false
  */
 bool BufferPoolManager::DeletePage(page_id_t page_id) { 
-	Page *tmp_page = NULL;
+  Page *tmp_page = NULL;
 
-	latch_.lock();	
-	//Page found. 
-	if(page_table_->Find(page_id, tmp_page)) {
-		if(!AddToFreeList(tmp_page)) {
-			latch_.unlock();
-			return false;
-		}
+  latch_.lock();  
+  //Page found. 
+  if(page_table_->Find(page_id, tmp_page)) {
+    if(!AddToFreeList(tmp_page)) {
+      latch_.unlock();
+      return false;
+    }
 
-		//Deallocate the page from disk
-		disk_manager_.DeallocatePage(page_id);
-		latch_.unlock();
-		return true; 
-	}
-	
-	latch_.unlock();
-	return false; 
+    //Deallocate the page from disk
+    disk_manager_.DeallocatePage(page_id);
+    latch_.unlock();
+    return true; 
+  }
+  
+  latch_.unlock();
+  return false; 
 }
 
 /**
@@ -223,64 +223,64 @@ bool BufferPoolManager::DeletePage(page_id_t page_id) {
  * return nullptr is all the pages in pool are pinned
  */
 Page *BufferPoolManager::NewPage(page_id_t &page_id) { 
-	Page *new_page = NULL;
+  Page *new_page = NULL;
 
-	latch_.lock();	
-	if(free_list_->empty()) {
-		//Fetch a victim page
-		if(!replacer_->Victim(new_page)){
-			latch_.unlock();
-			return nullptr;
-		}
+  latch_.lock();  
+  if(free_list_->empty()) {
+    //Fetch a victim page
+    if(!replacer_->Victim(new_page)){
+      latch_.unlock();
+      return nullptr;
+    }
 
-		//Flush and Cleanse the page
-		if(!AddToFreeList(new_page)) {
-			latch_.unlock();
-			return nullptr;
-		}
-	} 
+    //Flush and Cleanse the page
+    if(!AddToFreeList(new_page)) {
+      latch_.unlock();
+      return nullptr;
+    }
+  } 
 
-	//Always fetch from free_list.
-	new_page = free_list_->front();
-	free_list_->pop_front();
-	
-	page_id = disk_manager_.AllocatePage();
-	
-	//Set page metadata
-	new_page->page_id_ = page_id;
-	new_page->pin_count_++;
+  //Always fetch from free_list.
+  new_page = free_list_->front();
+  free_list_->pop_front();
+  
+  page_id = disk_manager_.AllocatePage();
+  
+  //Set page metadata
+  new_page->page_id_ = page_id;
+  new_page->pin_count_++;
 
-	disk_manager_.ReadPage(new_page->page_id_,
-												new_page->data_);
+  disk_manager_.ReadPage(new_page->page_id_,
+                        new_page->data_);
 
-	//Insert page into the page table
-	page_table_->Insert(page_id, new_page);
+  //Insert page into the page table
+  page_table_->Insert(page_id, new_page);
 
-	latch_.unlock();
-	return new_page;
+  latch_.unlock();
+  return new_page;
 }
 
 //Resets a given page object
 void BufferPoolManager::CleanPage(Page *tmp_page) {
-	tmp_page->ResetMemory();
-	tmp_page->page_id_   = INVALID_PAGE_ID;
-	tmp_page->is_dirty_  = false;
-	tmp_page->pin_count_ = 0;
+  tmp_page->ResetMemory();
+  tmp_page->page_id_   = INVALID_PAGE_ID;
+  tmp_page->is_dirty_  = false;
+  tmp_page->pin_count_ = 0;
 }
 
 bool BufferPoolManager::AddToFreeList(Page *tmp_page) {
-		if(tmp_page->pin_count_) return false;
+    if(tmp_page->pin_count_) return false;
 
-		if(tmp_page->is_dirty_) 
-			disk_manager_.WritePage(tmp_page->page_id_, 
-																			tmp_page->data_);
+    if(tmp_page->is_dirty_) 
+      disk_manager_.WritePage(tmp_page->page_id_, 
+                                      tmp_page->data_);
 
-		//Adding the page back to free list
-		replacer_->Erase(tmp_page);
-		page_table_->Remove(tmp_page->page_id_);
-		CleanPage(tmp_page);  //Helper function to reset page
-		free_list_->push_back(tmp_page);
-		return true;		
+    //Adding the page back to free list
+    replacer_->Erase(tmp_page);
+    page_table_->Remove(tmp_page->page_id_);
+    CleanPage(tmp_page);  //Helper function to reset page
+    free_list_->push_back(tmp_page);
+    return true;    
 }
 
 } // namespace cmudb
