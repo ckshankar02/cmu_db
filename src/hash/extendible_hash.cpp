@@ -10,8 +10,7 @@ namespace cmudb {
  * array_size: fixed array size for each bucket
  */
 template <typename K, typename V>
-ExtendibleHash<K, V>::ExtendibleHash(size_t size) {
-  uint64_t i = 0; 
+ExtendibleHash<K, V>::ExtendibleHash(size_t size) { 
   readers = 0;
     
   dir_mutex.lock();
@@ -19,7 +18,7 @@ ExtendibleHash<K, V>::ExtendibleHash(size_t size) {
   global_depth = GLOBAL_DEPTH;
   
   //Initializing the hash directory.
-  for(i=0;i<(1U<<global_depth);i++){
+  for(uint64_t i=0;i<(1U<<global_depth);i++){
     bucket* bkt = new bucket;
     bkt->local_depth = LOCAL_DEPTH;
     bkt->logical_idx = i;
@@ -51,8 +50,7 @@ void ExtendibleHash<K, V>::DumpAll(){
 
 template <typename K, typename V>
 void ExtendibleHash<K, V>::DumpDir(){
-  uint64_t i = 0;
-  for(i=0;i<hash_dir.size();i++) {
+  for(uint64_t i=0;i<hash_dir.size();i++) {
     std::cout<<"hash_dir["<<i<<"] = "<<hash_dir[i]<<std::endl;
   }
 }
@@ -73,7 +71,7 @@ size_t ExtendibleHash<K, V>::HashKey(const K &key) {
 template <typename K, typename V>
 int ExtendibleHash<K, V>::GetGlobalDepth() const {
   dir_mutex.lock();
-  uint64_t gd = global_depth;
+  const uint64_t gd = global_depth;
   dir_mutex.unlock();
   return gd;
 }
@@ -86,7 +84,7 @@ template <typename K, typename V>
 int ExtendibleHash<K, V>::GetLocalDepth(int bucket_id) const {
   dir_mutex.lock();
   buckets[bucket_id]->bkt_mutex.lock();
-  uint64_t ld = buckets[bucket_id]->local_depth;
+  const uint64_t ld = buckets[bucket_id]->local_depth;
   buckets[bucket_id]->bkt_mutex.unlock();
   dir_mutex.unlock();
   return ld;
@@ -98,7 +96,7 @@ int ExtendibleHash<K, V>::GetLocalDepth(int bucket_id) const {
 template <typename K, typename V>
 int ExtendibleHash<K, V>::GetNumBuckets() const {
   dir_mutex.lock();
-  uint64_t bkt_size = buckets.size();
+  const uint64_t bkt_size = buckets.size();
   dir_mutex.unlock();
   return bkt_size;
 }
@@ -108,10 +106,9 @@ int ExtendibleHash<K, V>::GetNumBuckets() const {
  */
 template <typename K, typename V>
 size_t ExtendibleHash<K,V>::GetBucketID(const K &key){
-  uint64_t hash_result = HashKey(key);
-  uint64_t gbl_mask = (1U<<global_depth) - 1;
-
-  uint64_t hash_idx = hash_result&gbl_mask;
+  const uint64_t hash_result = HashKey(key);
+  const uint64_t gbl_mask = (1U<<global_depth) - 1;
+  const uint64_t hash_idx = hash_result&gbl_mask;
 
   return hash_dir[hash_idx];  
 }
@@ -130,7 +127,7 @@ bool ExtendibleHash<K, V>::Find(const K &key, V &value) {
   rd_mutex.unlock();
   
   bool result = false;
-  uint64_t bkt_id = GetBucketID(key);
+  const uint64_t bkt_id = GetBucketID(key);
   typename std::vector<std::pair<K,V>>::iterator iter;
 
   for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {  
@@ -140,7 +137,6 @@ bool ExtendibleHash<K, V>::Find(const K &key, V &value) {
       break;
     }
   }
-
 
   rd_mutex.lock();
   readers--;
@@ -159,7 +155,7 @@ template <typename K, typename V>
 bool ExtendibleHash<K, V>::Remove(const K &key) {
   dir_mutex.lock();
   bool result = false;
-  uint64_t bkt_id = GetBucketID(key);
+  const uint64_t bkt_id = GetBucketID(key);
   typename std::vector<std::pair<K,V>>::iterator iter;
 
   for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
@@ -200,18 +196,17 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
   if(buckets[bkt_id]->kv_pairs.size() == bucket_size) {
     uint64_t depth_diff = 0;
     uint64_t gbl_mask = 0;
-    uint64_t i = 0;
 
     //Hash directory expansion  
     if(global_depth == buckets[bkt_id]->local_depth) {
-      uint64_t prev_size = hash_dir.size();
+      const uint64_t prev_size = hash_dir.size();
 
       //Double the number of hash directory entries.
       global_depth++;
       hash_dir.resize(1U<<global_depth);    
     
       //Initially make the new entries still point to old buckets.          
-      for(i=0;i<prev_size;i++) {
+      for(uint64_t i=0;i<prev_size;i++) {
         hash_dir[i+prev_size] = hash_dir[i];
       }
     }
@@ -231,9 +226,9 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
     depth_diff = global_depth - buckets[bkt_id]->local_depth;
     gbl_mask = (1U<<global_depth)-1;    
 
-    for(i=0;i<(1U<<depth_diff);i++) {       
-      uint64_t lg_idx = buckets[new_bkt_idx]->logical_idx;
-      uint64_t hd_idx = lg_idx | (i << buckets[new_bkt_idx]->local_depth);
+    for(uint64_t i=0;i<(1U<<depth_diff);i++) {       
+      const uint64_t lg_idx = buckets[new_bkt_idx]->logical_idx;
+      const uint64_t hd_idx = lg_idx | (i << buckets[new_bkt_idx]->local_depth);
       
       hash_dir[hd_idx & gbl_mask] = new_bkt_idx;
     }

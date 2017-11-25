@@ -77,7 +77,6 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
   //Set page metadata
   tmp_page->pin_count_++;
 
-
   //Insert page into the page table
   page_table_->Insert(page_id, tmp_page);
   latch_.unlock();
@@ -127,7 +126,7 @@ bool BufferPoolManager::FlushPage(page_id_t page_id) {
   Page *tmp_page = NULL;
 
   latch_.lock();
-  bool found = page_table_->Find(page_id, tmp_page);
+  const bool found = page_table_->Find(page_id, tmp_page);
 
   //Page Found 
   if(found && 
@@ -156,31 +155,6 @@ void BufferPoolManager::FlushAllPages() {
     }
   }
   latch_.unlock();
-
-/*  const uint64_t num_bkts = page_table_->GetNumBuckets();
-
-  //Iterate through each bucket in the page hash table
-  for(uint64_t i=0; i<num_bkts;i++){
-    //Gets the number of key/value pairs in a given bucket
-    const uint64_t num_entries = 
-                      page_table_->GetNumEntriesInBkt(i);
-
-    //Iterates through each of the entries in each bucket
-    for(uint64_t j=0; j<num_entries; j++) { 
-      page_id_t page_id = 0;
-      Page *tmp_page = NULL;
-
-      //Returns the page_id and Page* for 
-      //a given bucket id and entry
-      page_table_->GetKeyValue(i, j, page_id, tmp_page);
-
-      //Write back to disk if not INVALID
-      if(tmp_page->page_id_ != INVALID_PAGE_ID) {
-        disk_manager_.WritePage(page_id, tmp_page->data_);
-        tmp_page->is_dirty_ = false;
-      }
-    } 
-  }*/
 }
 
 /**

@@ -94,9 +94,8 @@ template <typename T> bool LRUReplacer<T>::Erase(const T &value) {
 }
 
 template <typename T> size_t LRUReplacer<T>::Size() { 
-  uint64_t node_count  = 0;
   rd_lock();
-    node_count = lru.size();
+    const uint64_t node_count = lru.size();
   rd_unlock();
  
   return node_count;
