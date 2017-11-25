@@ -273,6 +273,31 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 	dir_mutex.unlock();
 }
 
+//Returns the number of key/value entries in a given bucket
+template <typename K, typename V>
+uint64_t ExtendibleHash<K, V>::GetNumEntriesInBkt(
+																		const uint64_t bkt_id) {
+	if(bkt_id >= buckets.size()) return 0;
+ 	return buckets[bkt_id]->kv_pairs.size();
+}
+
+//Returns Key and Values for a given bucket and key/value entry
+template <typename K, typename V>
+bool ExtendibleHash<K, V>::GetKeyValue(const uint64_t bkt_id, 
+																		const uint64_t kv_entry,
+																				K &key, V &value) {
+	//Range check for requested bucket and key/value entry
+	if(bkt_id >= buckets.size() || 
+			kv_entry >= buckets[bkt_id]->kv_pairs.size()) 
+		return false;
+	
+	//Returning the corresponding key and value 
+	key   = buckets[bkt_id]->kv_pairs[kv_entry].first;
+	value = buckets[bkt_id]->kv_pairs[kv_entry].second;
+	
+	return true;
+}
+
 template class ExtendibleHash<page_id_t, Page *>;
 template class ExtendibleHash<Page *, std::list<Page *>::iterator>;
 // test purpose

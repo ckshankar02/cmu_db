@@ -41,6 +41,11 @@ public:
 
   //Newly added helper functions
   size_t GetBucketID(const K &key);
+	bool GetKeyValue(const uint64_t bkt_id, 
+										const uint64_t kv_entry,
+										K &key, V &value);
+	uint64_t GetNumEntriesInBkt(const uint64_t bkt_id);
+
   void DumpAll();
   void DumpDir();  
 
