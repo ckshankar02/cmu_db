@@ -6,17 +6,17 @@
 
 #IncludeRegexTransform: 
 
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/sqlite3.c
+/home/scanjee/Desktop/cmudb/src/sqlite/sqlite3.c
 config.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/config.h
+/home/scanjee/Desktop/cmudb/src/sqlite/config.h
 vxWorks.h
 -
 pthread.h
 -
 mingw.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/mingw.h
+/home/scanjee/Desktop/cmudb/src/sqlite/mingw.h
 _mingw.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/_mingw.h
+/home/scanjee/Desktop/cmudb/src/sqlite/_mingw.h
 stdarg.h
 -
 stdint.h
@@ -54,7 +54,7 @@ malloc.h
 pthread.h
 -
 windows.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/windows.h
+/home/scanjee/Desktop/cmudb/src/sqlite/windows.h
 sys/cygwin.h
 -
 errno.h
@@ -98,11 +98,11 @@ sys/statvfs.h
 dlfcn.h
 -
 sqlite_tcl.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/sqlite_tcl.h
+/home/scanjee/Desktop/cmudb/src/sqlite/sqlite_tcl.h
 tcl.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/tcl.h
+/home/scanjee/Desktop/cmudb/src/sqlite/tcl.h
 sqlite3rtree.h
-/home/scanjee/cmu_db/proj1/sqlite-fall2017/src/sqlite/sqlite3rtree.h
+/home/scanjee/Desktop/cmudb/src/sqlite/sqlite3rtree.h
 unicode/utypes.h
 -
 unicode/uregex.h

@@ -1,8 +1,8 @@
-FILE(REMOVE_RECURSE
+file(REMOVE_RECURSE
   "CMakeFiles/NightlyConfigure"
 )
 
 # Per-language clean rules from dependency scanning.
-FOREACH(lang)
-  INCLUDE(CMakeFiles/NightlyConfigure.dir/cmake_clean_${lang}.cmake OPTIONAL)
-ENDFOREACH(lang)
+foreach(lang )
+  include(CMakeFiles/NightlyConfigure.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

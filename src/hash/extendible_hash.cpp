@@ -19,7 +19,7 @@ ExtendibleHash<K, V>::ExtendibleHash(size_t size) {
 	global_depth = GLOBAL_DEPTH;
 	
 	//Initializing the hash directory.
-	for(i=0;i<(1<<global_depth);i++){
+	for(i=0;i<(1U<<global_depth);i++){
 		bucket* bkt = new bucket;
 		bkt->local_depth = LOCAL_DEPTH;
 		bkt->logical_idx = i;
@@ -40,7 +40,7 @@ void ExtendibleHash<K, V>::DumpAll(){
 	std::cout<<"HashDir Size:"<<hash_dir.size()<<std::endl;
 	std::cout<<"Num of Bkts :"<<buckets.size()<<std::endl;
 	
-	for(int i=0;i<buckets.size();i++) {
+	for(uint64_t i=0;i<buckets.size();i++) {
 		std::cout<<"Bucket "<<i<<std::endl;
 		std::cout<<"Num of Pairs :"<<buckets[i]->kv_pairs.size()<<std::endl;
 		std::cout<<"Local depth  :"<<buckets[i]->local_depth<<std::endl;
@@ -109,7 +109,7 @@ int ExtendibleHash<K, V>::GetNumBuckets() const {
 template <typename K, typename V>
 size_t ExtendibleHash<K,V>::GetBucketID(const K &key){
 	uint64_t hash_result = HashKey(key);
-	uint64_t gbl_mask = (1<<global_depth) - 1;
+	uint64_t gbl_mask = (1U<<global_depth) - 1;
 
 	uint64_t hash_idx = hash_result&gbl_mask;
 
@@ -208,7 +208,7 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 
 			//Double the number of hash directory entries.
 			global_depth++;
-			hash_dir.resize(1<<global_depth);		
+			hash_dir.resize(1U<<global_depth);		
 		
 			//Initially make the new entries still point to old buckets.					
 			for(i=0;i<prev_size;i++) {
@@ -223,15 +223,15 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
 
 
 		//Increase the local depth for both old and new buckets
-		bkt->logical_idx = buckets[bkt_id]->logical_idx | (1<<buckets[bkt_id]->local_depth);
+		bkt->logical_idx = buckets[bkt_id]->logical_idx | (1U<<buckets[bkt_id]->local_depth);
 		buckets[bkt_id]->local_depth++;
 		bkt->local_depth = buckets[bkt_id]->local_depth;
 
 		//Rearrange Hash directory pointers to point to new bucket	
 		depth_diff = global_depth - buckets[bkt_id]->local_depth;
-		gbl_mask = (1<<global_depth)-1;		
+		gbl_mask = (1U<<global_depth)-1;		
 
-		for(i=0;i<(1<<depth_diff);i++) { 			
+		for(i=0;i<(1U<<depth_diff);i++) { 			
 			uint64_t lg_idx = buckets[new_bkt_idx]->logical_idx;
 			uint64_t hd_idx = lg_idx | (i << buckets[new_bkt_idx]->local_depth);
 			

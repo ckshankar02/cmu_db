@@ -1,8 +1,8 @@
 # CMake generated Testfile for 
-# Source directory: /home/scanjee/cmu_db/proj1/sqlite-fall2017
-# Build directory: /home/scanjee/cmu_db/proj1/sqlite-fall2017/build
+# Source directory: /home/scanjee/Desktop/cmudb
+# Build directory: /home/scanjee/Desktop/cmudb/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
-SUBDIRS(src)
-SUBDIRS(test)
+subdirs(src)
+subdirs(test)
