@@ -18,7 +18,12 @@ namespace cmudb {
  */
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(page_id_t page_id,
-                                          page_id_t parent_id) {}
+                                          page_id_t parent_id) 
+{
+
+}
+
+
 /*
  * Helper method to get/set the key associated with input "index"(a.k.a
  * array offset)
@@ -61,6 +66,30 @@ INDEX_TEMPLATE_ARGUMENTS
 ValueType
 B_PLUS_TREE_INTERNAL_PAGE_TYPE::Lookup(const KeyType &key,
                                        const KeyComparator &comparator) const {
+  uint32_t sidx = 1, eidx = this->GetSize() - 1;
+  uint32_t mid = 0;
+  int8_t cmp_result;
+
+  while(sidx <= eidx){
+    if(sidx == eidx) 
+    {
+      cmp_result = comparator(this->array[sidx].first, key);
+      if(cmp_result >= 0)
+        return this->array[sidx+1].second;
+      else return this->array[sidx-1].second;
+    }
+
+    mid = (sidx+eidx)/2;
+    cmp_result = comparator(this->array[mid].first, key);
+
+    if(cmp_result == 0) 
+      return this->array[mid].second;
+    else if(cmp_result > 0) 
+      sidx = mid;
+    else
+      eidx = mid;
+  }
+
   return INVALID_PAGE_ID;
 }
 

@@ -76,7 +76,7 @@ Page *BufferPoolManager::FetchPage(page_id_t page_id) {
     
   //Set page metadata
   tmp_page->pin_count_++;
-
+  replacer_->Erase(tmp_page);
   //Insert page into the page table
   page_table_->Insert(page_id, tmp_page);
   latch_.unlock();
@@ -104,7 +104,7 @@ bool BufferPoolManager::UnpinPage(page_id_t page_id, bool is_dirty) {
     //Unpin once
     tmp_page->pin_count_--;
     
-    if(tmp_page->pin_count_ <= 0) {
+    if(tmp_page->pin_count_ == 0) {
       replacer_->Insert(tmp_page); //Inserting into LRU replacer
       tmp_page->is_dirty_ = is_dirty; 
       latch_.unlock();
@@ -129,8 +129,8 @@ bool BufferPoolManager::FlushPage(page_id_t page_id) {
   const bool found = page_table_->Find(page_id, tmp_page);
 
   //Page Found 
-  if(found && 
-      tmp_page->page_id_ != INVALID_PAGE_ID) {
+  if(found && tmp_page->page_id_ != INVALID_PAGE_ID && 
+     tmp_page->is_dirty) {
     disk_manager_.WritePage(page_id, tmp_page->data_);
     tmp_page->is_dirty_ = false;
     latch_.unlock();
@@ -148,7 +148,9 @@ bool BufferPoolManager::FlushPage(page_id_t page_id) {
 void BufferPoolManager::FlushAllPages() {
   latch_.lock();
   for(uint64_t i=0;i<pool_size_;i++) {
-    if(pages_[i].page_id_ != INVALID_PAGE_ID) { 
+    if(pages_[i].page_id_ != INVALID_PAGE_ID && 
+       pages_[i].is_dirty) 
+    { 
         disk_manager_.WritePage(pages_[i].page_id_,
                                 pages_[i].data_);
         pages_[i].is_dirty_ = false;
@@ -170,8 +172,13 @@ bool BufferPoolManager::DeletePage(page_id_t page_id) {
   Page *tmp_page = NULL;
 
   latch_.lock();  
-  //Page found. 
+  //Checking the page table for the page_id 
   if(page_table_->Find(page_id, tmp_page)) {
+    //Page table entry found. 
+    //Adding the page to the freelist.
+    //     1) Check for pin count - return false if > 0
+    //     2) remove from LRU replacer
+    //     3) remove from page table
     if(!AddToFreeList(tmp_page)) {
       latch_.unlock();
       return false;
@@ -199,22 +206,30 @@ bool BufferPoolManager::DeletePage(page_id_t page_id) {
 Page *BufferPoolManager::NewPage(page_id_t &page_id) { 
   Page *new_page = NULL;
 
-  latch_.lock();  
+  latch_.lock();
+
+  /*Checking if the Free list is empty*/
   if(free_list_->empty()) {
-    //Fetch a victim page
+    //Free list is empty
+    //Trying to fetch a empty, unpinned page from the LRU replacer
+    //Note: all the pages in LRU replacer are unpinned. Only 
+    //unpinned pages are inserted into the LRU replacer.
     if(!replacer_->Victim(new_page)){
+      //Unable to find a unpinned victim page
       latch_.unlock();
       return nullptr;
     }
 
+    //Found a Victim page from either free list or LRU replacer
     //Flush and Cleanse the page
     if(!AddToFreeList(new_page)) {
+      //Unable to add the page to Free list - may be pinned (unlikely).
       latch_.unlock();
       return nullptr;
     }
   } 
 
-  //Always fetch from free_list.
+  //Always fetch from free_list. 
   new_page = free_list_->front();
   free_list_->pop_front();
   
@@ -250,8 +265,10 @@ bool BufferPoolManager::AddToFreeList(Page *tmp_page) {
                                       tmp_page->data_);
 
     //Adding the page back to free list
+    //Removing the selected page from the LRU replacer
     replacer_->Erase(tmp_page);
-    page_table_->Remove(tmp_page->page_id_);
+    //Removing the corresponding entry from the page table
+    page_table_->Remove(tmp_page->page_id_);  
     CleanPage(tmp_page);  //Helper function to reset page
     free_list_->push_back(tmp_page);
     return true;    

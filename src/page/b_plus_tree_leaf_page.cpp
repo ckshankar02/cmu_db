@@ -20,18 +20,31 @@ namespace cmudb {
  * next page id and set max size
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(page_id_t page_id, page_id_t parent_id) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(page_id_t page_id, page_id_t parent_id) 
+{
+  int max_size = 0;
+  this->SetPageType(LEAF_PAGE);
+  this->SetSize(0);
+  this->SetPageId(page_id);
+  this->SetParentPageId(parent_id);
+
+  max_size = (PAGE_SIZE-this->GetHeaderSize())/sizeof(MappingType);
+  this->SetMaxSize(max_size);
+}
 
 /**
  * Helper methods to set/get next page id
  */
 INDEX_TEMPLATE_ARGUMENTS
 page_id_t B_PLUS_TREE_LEAF_PAGE_TYPE::GetNextPageId() const {
-  return INVALID_PAGE_ID;
+  return this->next_page_id_;
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::SetNextPageId(page_id_t next_page_id) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::SetNextPageId(page_id_t next_page_id) 
+{
+  this->next_page_id_ = next_page_id;
+}
 
 /**
  * Helper method to find the first index i so that array[i].first >= key
@@ -39,8 +52,29 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::SetNextPageId(page_id_t next_page_id) {}
  */
 INDEX_TEMPLATE_ARGUMENTS
 int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex(
-    const KeyType &key, const KeyComparator &comparator) const {
-  return 0;
+    const KeyType &key, const KeyComparator &comparator) const 
+{
+  int sidx = 1;
+  int eidx = sidx+this->GetSize()-1;
+  int mid = 0;
+  int8_t cmp_result = 0;
+
+  while(sidx < eidx) {
+    mid = (sidx+eidx)/2;
+    cmp_result = comparator(this->array[mid].first, key);
+    if(cmp_result == 0)
+      return mid;
+    else if(cmp_result < 0)
+      sidx = mid+1;
+    else
+      eidx = mid;
+  }
+
+  if(sidx == eidx && 
+    this->array[sidx].first >= key)
+    return sidx;
+    
+  return -1;
 }
 
 /*
@@ -50,7 +84,7 @@ int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex(
 INDEX_TEMPLATE_ARGUMENTS
 KeyType B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const {
   // replace with your own code
-  KeyType key;
+  KeyType key = array[index+1].first;
   return key;
 }
 
@@ -61,7 +95,7 @@ KeyType B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const {
 INDEX_TEMPLATE_ARGUMENTS
 const MappingType &B_PLUS_TREE_LEAF_PAGE_TYPE::GetItem(int index) {
   // replace with your own code
-  return array[0];
+  return array[index+1];
 }
 
 /*****************************************************************************
@@ -103,6 +137,30 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size) {}
 INDEX_TEMPLATE_ARGUMENTS
 bool B_PLUS_TREE_LEAF_PAGE_TYPE::Lookup(const KeyType &key, ValueType &value,
                                         const KeyComparator &comparator) const {
+  int sidx = 1;
+  int eidx = sidx+this->GetSize()-1;
+  int mid = 0;
+  int8_t cmp_result = 0;
+
+  while(sidx <= eidx)
+  {
+    mid = (sidx+eidx)/2;
+    cmp_result = comparator(this->array[mid].first, key);
+    if(cmp_result == 0) //Key Match Case 
+    {
+      value = this->array[mid].second;
+      return true;
+    }
+    else if(cmp_result < 0)
+    {
+      sidx = mid+1;
+    }
+    else 
+    {
+      eidx = mid-1;
+    }
+  }
+
   return false;
 }
 

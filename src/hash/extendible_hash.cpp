@@ -184,7 +184,8 @@ void ExtendibleHash<K, V>::Insert(const K &key, const V &value) {
   uint64_t new_bkt_idx = 0;
 
   //check if the key is already present, if so, update value and return. 
-  for(iter = buckets[bkt_id]->kv_pairs.begin(); iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
+  for(iter = buckets[bkt_id]->kv_pairs.begin(); 
+      iter != buckets[bkt_id]->kv_pairs.end(); iter++) {
     if(iter->first == key) {
       iter->second = value;
       dir_mutex.unlock();
