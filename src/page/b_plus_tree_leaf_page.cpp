@@ -54,8 +54,8 @@ INDEX_TEMPLATE_ARGUMENTS
 int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex(
     const KeyType &key, const KeyComparator &comparator) const 
 {
-  int sidx = 1;
-  int eidx = sidx+this->GetSize()-1;
+  int sidx = 0;
+  int eidx = this->GetSize()-1;
   int mid = 0;
   int8_t cmp_result = 0;
 
@@ -84,7 +84,7 @@ int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex(
 INDEX_TEMPLATE_ARGUMENTS
 KeyType B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const {
   // replace with your own code
-  KeyType key = array[index+1].first;
+  KeyType key = array[index].first;
   return key;
 }
 
@@ -95,7 +95,7 @@ KeyType B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const {
 INDEX_TEMPLATE_ARGUMENTS
 const MappingType &B_PLUS_TREE_LEAF_PAGE_TYPE::GetItem(int index) {
   // replace with your own code
-  return array[index+1];
+  return array[index];
 }
 
 /*****************************************************************************
@@ -121,10 +121,24 @@ int B_PLUS_TREE_LEAF_PAGE_TYPE::Insert(const KeyType &key,
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveHalfTo(
     BPlusTreeLeafPage *recipient,
-    __attribute__((unused)) BufferPoolManager *buffer_pool_manager) {}
+    __attribute__((unused)) BufferPoolManager *buffer_pool_manager) 
+{
+    
+    recipient->CopyHalfFrom(this->array, this->GetSize()/2);
+    this->SetSize(this->GetSize()/2);
+}
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size) 
+{
+   int start_idx = size;
+   for(int i=0; i<size; i++)
+   {
+      this->array[i] = items[start_idx];
+      items[start_idx++] = 0;
+   }
+   this->IncreaseSize(size);
+}
 
 /*****************************************************************************
  * LOOKUP
@@ -188,9 +202,24 @@ int B_PLUS_TREE_LEAF_PAGE_TYPE::RemoveAndDeleteRecord(
  */
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveAllTo(BPlusTreeLeafPage *recipient,
-                                           int, BufferPoolManager *) {}
+                                           int, BufferPoolManager *) {
+  recipient->CopyAllFrom(this->array, this->GetSize());
+  recipient->next_page_id_ = this->next_page_id_;
+  memset(this->array, 0, this->GetMaxSize());
+  this->SetSize(0);
+}
+
+
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyAllFrom(MappingType *items, int size) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyAllFrom(MappingType *items, int size) {
+  int start_idx = this->GetSize();
+
+  for(int i=0;i<size;i++) {
+    this->array[start_idx++] = items[i]; 
+  }
+
+  this->IncreaseSize(size);
+}
 
 /*****************************************************************************
  * REDISTRIBUTE
@@ -199,13 +228,31 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyAllFrom(MappingType *items, int size) {}
  * Remove the first key & value pair from this page to "recipient" page, then
  * update relavent key & value pair in its parent page.
  */
+
+ 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstToEndOf(
     BPlusTreeLeafPage *recipient,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) {
+    
+    /*BPlusTreeInternalPage *parent = 
+            buffer_pool_manager->FetchPage(this->GetParentPageId());
+  
+    idx = parent->(this->array[1].first); //Needs comparator.
+    AdjustArrayForward(this->array, 1);
+  
+    parent->array[idx].first = this->array[1].first;*/  
+    recipient->CopyLastFrom(this->array[0]);
+
+}
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyLastFrom(const MappingType &item) {}
+void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyLastFrom(const MappingType &item) {
+    int idx = this->GetSize();
+    this->array[idx] = item;
+}
+
+
 /*
  * Remove the last key & value pair from this page to "recipient" page, then
  * update relavent key & value pair in its parent page.
@@ -213,12 +260,20 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyLastFrom(const MappingType &item) {}
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveLastToFrontOf(
     BPlusTreeLeafPage *recipient, int parentIndex,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) {
+    
+    int idx = this->GetSize()-1;
+    recipient->CopyFirstFrom(this->array[idx], parentIndex,
+                                        buffer_pool_manager);    
+}
 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyFirstFrom(
     const MappingType &item, int parentIndex,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) {
+    this->array[0] = item;
+}
+
 
 /*****************************************************************************
  * DEBUG
