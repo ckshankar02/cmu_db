@@ -20,7 +20,9 @@ INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(page_id_t page_id,
                                           page_id_t parent_id) 
 {
-
+  this->SetPageId(page_id);
+  this->SetParentPageId(parent_id);
+  
 }
 
 
@@ -127,11 +129,24 @@ int B_PLUS_TREE_INTERNAL_PAGE_TYPE::InsertNodeAfter(
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveHalfTo(
     BPlusTreeInternalPage *recipient,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) 
+{
+    recipient->CopyHalfFrom(this->array, this->GetSize()/2, buffer_pool_manager);
+    this->SetSize(this->GetSize()/2);
+}
 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyHalfFrom(
-    MappingType *items, int size, BufferPoolManager *buffer_pool_manager) {}
+    MappingType *items, int size, BufferPoolManager *buffer_pool_manager) 
+{
+    int start_idx = size;
+  
+    for(int i=1;i<=size;i++) 
+    {
+        this->array[i] = items[start_idx++];
+    }  
+    this->IncreaseSize(size);
+}
 
 /*****************************************************************************
  * REMOVE
