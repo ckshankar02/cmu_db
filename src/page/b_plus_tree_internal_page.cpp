@@ -177,11 +177,28 @@ ValueType B_PLUS_TREE_INTERNAL_PAGE_TYPE::RemoveAndReturnOnlyChild() {
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(
     BPlusTreeInternalPage *recipient, int index_in_parent,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) 
+{
+    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->parent_page_id_);
+    this->array[0].first = parent->array[index_in_parent].first;
+    recipient->CopyAllFrom(this->array, this->GetSize(), buffer_pool_manager);
+    for(int i=index_in_parent;i<parent->GetSize();i++)
+      parent->array[i] = parent->array[i+1];
+    parent->SetSize(--parent->GetSize());
+}
 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyAllFrom(
-    MappingType *items, int size, BufferPoolManager *buffer_pool_manager) {}
+    MappingType *items, int size, BufferPoolManager *buffer_pool_manager) 
+{
+    int start_idx = this->GetSize(); 
+    
+    for(int i=0;i<size;i++) 
+    {
+      this->array[start_idx++] = items[i];     
+    }  
+    this->IncreaseSize(size);
+}
 
 /*****************************************************************************
  * REDISTRIBUTE
