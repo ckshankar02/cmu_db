@@ -111,6 +111,7 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::PopulateNewRoot(
     const ValueType &old_value, const KeyType &new_key,
     const ValueType &new_value) 
 {
+    
 }
   
 /*
@@ -252,12 +253,29 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyLastFrom(
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf(
     BPlusTreeInternalPage *recipient, int parent_index,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) 
+{
+    int i=0;
+    for(i=recipient->GetSize(); i > 0; i--) 
+    {
+       recipient->array[i] = recipient->array[i-1];
+    }
+    recipient->IncreaseSize(1);
+    recipient->CopyFirstFrom(this->array[this->GetSize()-1], parent_index, buffer_pool_manager);    
+    this->SetSize(this->GetSize()-1);
+}
 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyFirstFrom(
     const MappingType &pair, int parent_index,
-    BufferPoolManager *buffer_pool_manager) {}
+    BufferPoolManager *buffer_pool_manager) 
+{
+    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->parent_page_id_);
+    this->array[1].first = parent->array[parent_index].first;
+    this->array[0].second = pair.second;
+    parent->array[parent_index].first = pair.first;
+    
+}
 
 /*****************************************************************************
  * DEBUG
