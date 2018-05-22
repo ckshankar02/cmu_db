@@ -22,7 +22,6 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(page_id_t page_id,
 {
   this->SetPageId(page_id);
   this->SetParentPageId(parent_id);
-  
 }
 
 
@@ -38,7 +37,10 @@ KeyType B_PLUS_TREE_INTERNAL_PAGE_TYPE::KeyAt(int index) const {
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyAt(int index, const KeyType &key) {}
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyAt(int index, const KeyType &key) 
+{
+  
+}
 
 /*
  * Helper method to find and return array index(or offset), so that its value
@@ -107,7 +109,10 @@ B_PLUS_TREE_INTERNAL_PAGE_TYPE::Lookup(const KeyType &key,
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::PopulateNewRoot(
     const ValueType &old_value, const KeyType &new_key,
-    const ValueType &new_value) {}
+    const ValueType &new_value) 
+{
+}
+  
 /*
  * Insert new_key & new_value pair right after the pair with its value ==
  * old_value
@@ -116,7 +121,8 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::PopulateNewRoot(
 INDEX_TEMPLATE_ARGUMENTS
 int B_PLUS_TREE_INTERNAL_PAGE_TYPE::InsertNodeAfter(
     const ValueType &old_value, const KeyType &new_key,
-    const ValueType &new_value) {
+    const ValueType &new_value) 
+{
   return 0;
 }
 
@@ -157,16 +163,21 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyHalfFrom(
  * NOTE: store key&value pair continuously after deletion
  */
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Remove(int index) {}
+void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Remove(int index) 
+{
+
+}
 
 /*
  * Remove the only key & value pair in internal page and return the value
  * NOTE: only call this method within AdjustRoot()(in b_plus_tree.cpp)
  */
 INDEX_TEMPLATE_ARGUMENTS
-ValueType B_PLUS_TREE_INTERNAL_PAGE_TYPE::RemoveAndReturnOnlyChild() {
+ValueType B_PLUS_TREE_INTERNAL_PAGE_TYPE::RemoveAndReturnOnlyChild() 
+{
   return INVALID_PAGE_ID;
 }
+
 /*****************************************************************************
  * MERGE
  *****************************************************************************/
@@ -212,11 +223,27 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveFirstToEndOf(
     BPlusTreeInternalPage *recipient,
     BufferPoolManager *buffer_pool_manager) 
 {
+  this->array[0].first = this->array[1].first;
+  receipent->CopyLastFrom(this->array[1]);
+
+  for(int i=2;i<this->GetSize();i++)
+  {
+      array[i-1] = array[i];
+  }
+  this->SetSize(this->GetSize()-1);
 }
 
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyLastFrom(
-    const MappingType &pair, BufferPoolManager *buffer_pool_manager) {}
+    const MappingType &pair, BufferPoolManager *buffer_pool_manager) 
+{
+    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->parent_page_id_);
+    int idx = parent->ValueIndex(pair.first);
+    this->array[this->GetSize()].first = parent->array[idx].first;
+    this->array[this->GetSize()].second = pair.second;
+    parent->array[idx].first = pair.first;
+    this->IncreaseSize(1);
+}
 
 /*
  * Remove the last key & value pair from this page to head of "recipient"
@@ -239,7 +266,8 @@ INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::QueueUpChildren(
     std::queue<BPlusTreePage *> *queue,
     BufferPoolManager *buffer_pool_manager) {
-  for (int i = 0; i < GetSize(); i++) {
+  for (int i = 0; i < GetSize(); i++) 
+  {
     auto *page = buffer_pool_manager->FetchPage(array[i].second);
     if (page == nullptr)
       throw Exception(EXCEPTION_TYPE_INDEX,
