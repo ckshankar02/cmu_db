@@ -191,12 +191,13 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(
     BPlusTreeInternalPage *recipient, int index_in_parent,
     BufferPoolManager *buffer_pool_manager) 
 {
-    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->parent_page_id_);
+    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->GetParentPageId());
     this->array[0].first = parent->array[index_in_parent].first;
     recipient->CopyAllFrom(this->array, this->GetSize(), buffer_pool_manager);
     for(int i=index_in_parent;i<parent->GetSize();i++)
       parent->array[i] = parent->array[i+1];
     parent->SetSize(--parent->GetSize());
+    buffer_pool_manager->UnpinPage(this->GetParentPageId(), true);
 }
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -244,6 +245,7 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyLastFrom(
     this->array[this->GetSize()].second = pair.second;
     parent->array[idx].first = pair.first;
     this->IncreaseSize(1);
+    buffer_pool_manager->UnpinPage(this->GetParentPageId(), true);
 }
 
 /*
@@ -270,11 +272,11 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyFirstFrom(
     const MappingType &pair, int parent_index,
     BufferPoolManager *buffer_pool_manager) 
 {
-    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->parent_page_id_);
+    BPlusTreeInternalPage *parent = buffer_pool_manager->FetchPage(this->GetParentPageId());
     this->array[1].first = parent->array[parent_index].first;
     this->array[0].second = pair.second;
     parent->array[parent_index].first = pair.first;
-    
+    buffer_pool_manager->UnpinPage(this->GetParentPageId(), true);
 }
 
 /*****************************************************************************
