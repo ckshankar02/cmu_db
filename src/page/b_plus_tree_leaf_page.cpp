@@ -137,7 +137,6 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveHalfTo(
     BPlusTreeLeafPage *recipient,
     __attribute__((unused)) BufferPoolManager *buffer_pool_manager) 
 {
-    
     recipient->CopyHalfFrom(this->array, this->GetSize()<<1);
     this->SetSize(this->GetSize()<<1);
 }
