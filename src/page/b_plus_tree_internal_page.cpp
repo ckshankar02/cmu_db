@@ -111,7 +111,9 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::PopulateNewRoot(
     const ValueType &old_value, const KeyType &new_key,
     const ValueType &new_value) 
 {
-    
+    this->array[0].second = old_value;
+    this->array[1].first  = new_key;
+    this->array[1].second = new_value;
 }
   
 /*
@@ -124,6 +126,12 @@ int B_PLUS_TREE_INTERNAL_PAGE_TYPE::InsertNodeAfter(
     const ValueType &old_value, const KeyType &new_key,
     const ValueType &new_value) 
 {
+  int idx = this->ValueIndex(old_value);
+  for(int i=this->GetSize()-1;i>idx+1;i--)
+    this->array[i] = this->array[i+1];
+  
+  this->array[idx+1].first = new_key;
+  this->array[idx+1].second = new_value;
   return 0;
 }
 
