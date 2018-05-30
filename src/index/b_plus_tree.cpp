@@ -52,11 +52,14 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
   ValueType value_ptr = 0;
   while(!page_ptr->IsLeafPage())
   {
-    page_id_ptr = (BPlusTreeInternalPage *)page_ptr->Lookup(key, this->comparator);
+    value_ptr = ((BPlusTreeInternalPage *)page_ptr)->Lookup(key, this->comparator);
     this->buffer_pool_manager_->Unpin(page_ptr->GetPageId());
     page_ptr = this->buffer_pool_manager_->FetchPage(page_id_ptr);
   }
-  if(page_ptr->Lookup(key,
+  if(((BPlusTreeLeafPage)page_ptr)->Lookup(key, value_ptr, this->comparator))
+  {
+    result.push_back(value_ptr);
+  }
   return false;
 }
 
