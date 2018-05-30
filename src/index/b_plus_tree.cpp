@@ -18,13 +18,23 @@ BPLUSTREE_TYPE::BPlusTree(const std::string &name,
                                 const KeyComparator &comparator,
                                 page_id_t root_page_id)
     : index_name_(name), root_page_id_(root_page_id),
-      buffer_pool_manager_(buffer_pool_manager), comparator_(comparator) {}
+      buffer_pool_manager_(buffer_pool_manager), comparator_(comparator) 
+{
+    this->index_name_ = name;
+    this->root_page_id_ = root_page_id;
+    this->buffer_pool_manager_ = buffer_pool_manager;
+    this->comparator_ = comparator;
+}
 
 /*
  * Helper function to decide whether current b+tree is empty
  */
 INDEX_TEMPLATE_ARGUMENTS
-bool BPLUSTREE_TYPE::IsEmpty() const { return true; }
+bool BPLUSTREE_TYPE::IsEmpty() const 
+{ 
+  if(this->root_page_id_ < 0) return true;
+  return false; 
+}
 /*****************************************************************************
  * SEARCH
  *****************************************************************************/
@@ -36,7 +46,17 @@ bool BPLUSTREE_TYPE::IsEmpty() const { return true; }
 INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
                               std::vector<ValueType> &result,
-                              Transaction *transaction) {
+                              Transaction *transaction) 
+{
+  BPlusTreePage *page_ptr = this->buffer_pool_manager_->FetchPage(this->root_page_id_);
+  ValueType value_ptr = 0;
+  while(!page_ptr->IsLeafPage())
+  {
+    page_id_ptr = (BPlusTreeInternalPage *)page_ptr->Lookup(key, this->comparator);
+    this->buffer_pool_manager_->Unpin(page_ptr->GetPageId());
+    page_ptr = this->buffer_pool_manager_->FetchPage(page_id_ptr);
+  }
+  if(page_ptr->Lookup(key,
   return false;
 }
 
