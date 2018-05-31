@@ -14,6 +14,10 @@ namespace cmudb {
 #define PAGE_SIZE 4096     // size of a data page in byte
 #define BUCKET_SIZE 50     // size of extendible hash bucket
 
+//Helper defs
+#define INVALID_INDEX -1
+#define NO_PARENT -1 
+
 typedef int32_t page_id_t; // page id type
 typedef int32_t txn_id_t;  // transaction id type
 

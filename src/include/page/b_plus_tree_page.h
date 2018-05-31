@@ -31,18 +31,21 @@ namespace cmudb {
 
 // define page type enum
 enum class IndexPageType { INVALID_INDEX_PAGE = 0, LEAF_PAGE, 
-                           INTERNAL_PAGE, ROOT_PAGE };
+                           INTERNAL_PAGE};
 
 // Abstract class.
 class BPlusTreePage {
 public:
   bool IsLeafPage() const;
   bool IsRootPage() const;
+
   void SetPageType(IndexPageType page_type);
+  IndexPageType GetPageType() const;
 
   int GetSize() const;
   void SetSize(int size);
   void IncreaseSize(int amount);
+  void DecreaseSize(int amount);
 
   int GetMaxSize() const;
   void SetMaxSize(int max_size);
