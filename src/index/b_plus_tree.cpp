@@ -1,4 +1,4 @@
-/**
+/*
  * b_plus_tree.cpp
  */
 #include <iostream>
@@ -13,18 +13,12 @@
 namespace cmudb {
 
 INDEX_TEMPLATE_ARGUMENTS
-BPLUSTREE_TYPE::BPlusTree(const std::string &name,
+BPLUSTREE_TYPE::BPlusTree(const std::string &name, 
                                 BufferPoolManager *buffer_pool_manager,
                                 const KeyComparator &comparator,
                                 page_id_t root_page_id)
     : index_name_(name), root_page_id_(root_page_id),
-      buffer_pool_manager_(buffer_pool_manager), comparator_(comparator) 
-{
-    this->index_name_ = name;
-    this->root_page_id_ = root_page_id;
-    this->buffer_pool_manager_ = buffer_pool_manager;
-    this->comparator_ = comparator;
-}
+      buffer_pool_manager_(buffer_pool_manager), comparator_(comparator) {}
 
 /*
  * Helper function to decide whether current b+tree is empty
@@ -48,19 +42,27 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
                               std::vector<ValueType> &result,
                               Transaction *transaction) 
 {
-  BPlusTreePage *page_ptr = this->buffer_pool_manager_->FetchPage(this->root_page_id_);
-  ValueType value_ptr = 0;
-  while(!page_ptr->IsLeafPage())
-  {
-    value_ptr = ((BPlusTreeInternalPage *)page_ptr)->Lookup(key, this->comparator);
+    bool res = false;
+    BPlusTreePage *page_ptr = 
+              this->buffer_pool_manager_->FetchPage(this->root_page_id_);
+
+    ValueType val = 0;
+
+    while(!page_ptr->IsLeafPage())
+    {
+      val = ((BPlusTreeInternalPage *)page_ptr)->Lookup(key, this->comparator);
+      this->buffer_pool_manager_->Unpin(page_ptr->GetPageId());
+      page_ptr = this->buffer_pool_manager_->FetchPage(page_id_ptr);
+    }
+
+    if(((BPlusTreeLeafPage *)page_ptr)->Lookup(key, val, this->comparator))
+    {
+      result.push_back(val);
+      res = true;
+    }
+
     this->buffer_pool_manager_->Unpin(page_ptr->GetPageId());
-    page_ptr = this->buffer_pool_manager_->FetchPage(page_id_ptr);
-  }
-  if(((BPlusTreeLeafPage)page_ptr)->Lookup(key, value_ptr, this->comparator))
-  {
-    result.push_back(value_ptr);
-  }
-  return false;
+    return res;
 }
 
 /*****************************************************************************
@@ -75,9 +77,23 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
  */
 INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value,
-                            Transaction *transaction) {
-  return false;
+                            Transaction *transaction)
+{
+    std::vector res;
+
+    /* Current tree is empty */
+    if(this->IsEmpty())
+    {
+      this->StartNewTree(key, value);
+      return true;
+    }
+    
+    if(this->InsertIntoLeaf(key, value, transaction))
+      return true;
+
+    return false;
 }
+
 /*
  * Insert constant key & value pair into an empty tree
  * User needs to first ask for new page from buffer pool manager(NOTICE: throw
@@ -85,7 +101,23 @@ bool BPLUSTREE_TYPE::Insert(const KeyType &key, const ValueType &value,
  * tree's root page id and insert entry directly into leaf page.
  */
 INDEX_TEMPLATE_ARGUMENTS
-void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value) {}
+void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value) 
+{
+    page_id_t root_page_id;
+
+    BPlusTreeLeafPage *root_page = 
+              this->buffer_pool_manager_->NewPage(root_page_id);
+
+    if(root_page == nullptr) 
+        throw "Out of memory!";
+
+    this->root_page_id_ = root_page_id;
+
+    root_page->array[0].first = key;
+    root_page->array[0].second = value;
+
+    this->buffer_pool_manager_->Unpin(this->root_page_id_, true);
+}
 
 /*
  * Insert constant key & value pair into leaf page
@@ -97,8 +129,42 @@ void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value) {}
  */
 INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::InsertIntoLeaf(const KeyType &key, const ValueType &value,
-                                    Transaction *transaction) {
-  return false;
+                                    Transaction *transaction) 
+{
+    BPlusTreeLeafPage *leaf_pg = NULL, sib_leaf_pg = NULL;
+    BPlusTreePage *tree_pg = 
+              this->buffer_pool_manager_->FetchPage(this->root_page_id_);
+
+    ValueType val = 0;
+
+    while(!tree_pg->IsLeafPage())
+    {
+        val = ((BPlusTreeInternalPage *)tree_pg)->Lookup(key, this->comparator);
+        this->buffer_pool_manager_->Unpin(tree_pg->GetPageId());
+        tree_pg = this->buffer_pool_manager_->FetchPage(page_id_ptr);
+    }
+
+    leaf_pg = (BPlusTreeLeafPage *)tree_pg;
+    
+    /* Key already exists. Trying to insert duplicate key*/
+    if(!leaf_pg->Lookup(key, val, this->comparator))
+    {
+        this->buffer_pool_manager_->Unpin(leaf_pg->GetPageId());
+        return false;
+    }
+
+    leaf_pg->Insert(key, value, this->comparator);
+
+    /* Page/Node is not full */
+    if(leaf_pg->GetSize() < leaf_pg->GetMaxSize())
+        return true;
+    
+    /* Node is max'ed out, need to split */
+    sib_leaf_pg = this->Split(leaf_pg);
+
+
+
+  
 }
 
 /*
