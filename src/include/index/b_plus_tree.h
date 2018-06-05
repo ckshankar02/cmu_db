@@ -61,6 +61,8 @@ public:
   // expose for test purpose
   B_PLUS_TREE_LEAF_PAGE_TYPE *FindLeafPage(const KeyType &key,
                                            bool leftMost = false);
+  
+  page_id_t GetRootPageId() const;
 
 private:
   void StartNewTree(const KeyType &key, const ValueType &value);
