@@ -1,4 +1,4 @@
-/**
+/*
  * b_plus_tree_leaf_page.h
  *
  * Store indexed key and record id(record id = page id combined with slot id,
@@ -63,6 +63,13 @@ public:
                         BufferPoolManager *buffer_pool_manager);
   void MoveLastToFrontOf(BPlusTreeLeafPage *recipient, int parentIndex,
                          BufferPoolManager *buffer_pool_manager);
+ 
+  //Custom
+  void MoveFirstNTo(BPlusTreeLeafPage *recipient, int move_size,
+               BufferPoolManager *buffer_pool_manager);
+  void MoveLastNTo(BPlusTreeLeafPage *recipient, int move_size,
+               BufferPoolManager *buffer_pool_manager);
+  
   // Debug
   std::string ToString(bool verbose = false) const;
 
@@ -72,6 +79,10 @@ private:
   void CopyLastFrom(const MappingType &item);
   void CopyFirstFrom(const MappingType &item, int parentIndex,
                      BufferPoolManager *buffer_pool_manager);
+  
+  //Custom
+  void CopyFirstNFrom(MappingType *items, int size);
+  void CopyLastNFrom(MappingType *items, int size);
 
   page_id_t next_page_id_;
   MappingType array[0];

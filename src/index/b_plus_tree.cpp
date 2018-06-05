@@ -339,6 +339,11 @@ INDEX_TEMPLATE_ARGUMENTS
 template <typename N>
 bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction)
 {
+    if(node->IsRootPage())
+    {
+        return AdjustRoot(node);
+    }      
+
     BPlusTreeInternalPage *parent = 
       (BPlusTreeInternalPage *)this->buffer_pool_manager_->FetchPage
                                                     (node->GetParentPageId());
@@ -346,18 +351,28 @@ bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction)
     /* Check posibility of Coalescing */
     int parent_index = parent->ValueIndex(node->GetPageId());
 
-    int sib_index = this->Check_Merge_Sib(parent_index, parent);
+    int sib_index = this->CheckMergeSibbling(parent_index, parent);
 
     if(sib_index >= 0)
     {
        BPlusTreePage *sib_pg = 
          this->buffer_pool_manager_->FetchPage(parent->array[sib_index].second);
 
-       this->Coalesce(sib_pg, node, parent, parent_index, transaction);
 
+       if(sib_index < parent_index)
+          this->Coalesce(sib_pg, node, parent, parent_index, transaction);
+       else 
+          this->Coalesce(node, sib_pg, parent, sib_index, transaction);
+        
+          
+       this->buffer_pool_manager_->UnpinPage(sib_pg, true);
+       return true;
     }
-
-    return false;
+    else 
+    {
+        this->Redistribute();
+        return false;
+    }
 }
 
 /*
@@ -374,11 +389,33 @@ bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction)
  */
 INDEX_TEMPLATE_ARGUMENTS
 template <typename N>
-bool BPLUSTREE_TYPE::Coalesce(
-    N *&neighbor_node, N *&node,
-    BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> *&parent,
-    int index, Transaction *transaction) {
-  return false;
+bool BPLUSTREE_TYPE::Coalesce(N *&neighbor_node, N *&node, 
+              BPlusTreeInternalPage<KeyType, page_id_t, KeyComparator> *&parent,
+                                            int index, Transaction *transaction)
+{
+    /*
+     *   Neighbor node - Recepient 
+     *   Node          - Donor
+     *   parent        - parent of donor & recepient
+     *   index         - index of donor in parent node
+     *   transaction   - not used
+     */
+    node->MoveAllTo(neighbor_node, index, this->buffer_pool_manager_);
+
+    this->buffer_pool_manager_->UnpinPage(node->GetPageId(),true);
+    this->buffer_pool_manager_->DeletePage(node->GetPageId());
+
+    for(int i=index;i<parent->GetSize();i++)
+        parent->array[i] = parent->array[i+1];
+
+    parent->DecreaseSize(1);
+
+    if(parent->GetSize() < parent->GetMinSize())
+    {
+        return this->CoalesceOrRedistribute(parent, transaction);
+    }
+
+    return false;
 }
 
 /*
@@ -392,7 +429,22 @@ bool BPLUSTREE_TYPE::Coalesce(
  */
 INDEX_TEMPLATE_ARGUMENTS
 template <typename N>
-void BPLUSTREE_TYPE::Redistribute(N *neighbor_node, N *node, int index) {}
+void BPLUSTREE_TYPE::Redistribute(N *neighbor_node, N *node, int index) 
+{
+    int parent_pg_id = node->GetParentPageId();
+    BPlusTreeInternalPage *parent = (BPlusTreeInternalPage *)
+      this->buffer_pool_manager_->FetchPage(parent_pg_id);
+
+    int move_size = node->GetMinSize()-node->GetSize();
+    
+    if(index)
+       neighbor_node->MoveFirstNTo(node, move_size, this->buffer_pool_manager_);
+    else 
+       node->MoveLastNTo(neighbor_node, move_size, this->buffer_pool_manager_);
+
+    this->buffer_pool_manager_->UnpinPage(parent_pg_id);
+}
+
 /*
  * Update root page if necessary
  * NOTE: size of root page can be less than min size and this method is only
@@ -404,8 +456,59 @@ void BPLUSTREE_TYPE::Redistribute(N *neighbor_node, N *node, int index) {}
  * happend
  */
 INDEX_TEMPLATE_ARGUMENTS
-bool BPLUSTREE_TYPE::AdjustRoot(BPlusTreePage *old_root_node) {
-  return false;
+bool BPLUSTREE_TYPE::AdjustRoot(BPlusTreePage *old_root_node) 
+{
+    if(old_root_node->IsLeafPage()) 
+        return true;
+
+    this->root_page_id = old_root_node->array[0].second;
+    this->buffer_pool_manager_->UnpinPage(old_root_node->GetPageId(),false);
+    this->buffer_pool_manager_->DeletePage(node->GetPageId());
+    this->UpdateRootPageId(false);
+    return false;
+}
+
+INDEX_TEMPLATE_ARGUMENTS
+int CheckMergeSibbling(int parent_index, BPlusTreeInternalPage *parent)
+{
+    int left_child_size  = 0;
+    int right_child_size = 0;
+
+    int left_index  = 
+              (parent_index==0)?-1:(parent_index-1);
+    int right__index = 
+              (parent_index==parent->GetSize()-1)?-1:(parent_index+1);
+
+    if(left_index >= 0)
+    {
+       BPlusTreePage *bt_pg = 
+        this->buffer_pool_manager_->FetchPage(parent->array[left_index].second);
+      
+       left_child_size = bt_pg->GetSize();
+       this->buffer_pool_manager_->UnpingPage(bt_pg->GetPageId());
+    }
+
+    if(right_index >= 0)
+    { 
+       BPlusTreePage *bt_pg = 
+       this->buffer_pool_manager_->FetchPage(parent->array[right_index].second);
+      
+       right_child_size = bt_pg->GetSize();
+       this->buffer_pool_manager_->UnpingPage(bt_pg->GetPageId());
+    }
+
+    if(left_child_size < right_child_size)
+    {
+        if(left_child_size != 0) return left_index;
+        else return right_index;
+    }
+    else if(left_child_size > right_child_size)
+    {
+        if(right_child_size != 0) return right_index;
+        else return left_index;
+    }
+    else
+       return INVALID_INDEX;
 }
 
 /*****************************************************************************
@@ -505,6 +608,7 @@ void BPLUSTREE_TYPE::InsertFromFile(const std::string &file_name,
     Insert(index_key, rid, transaction);
   }
 }
+
 /*
  * This method is used for test only
  * Read data from file and remove one by one

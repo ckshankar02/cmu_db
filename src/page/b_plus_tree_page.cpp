@@ -78,7 +78,10 @@ void BPlusTreePage::SetMaxSize(int size)
  * Generally, min page size == max page size / 2
  */
 int BPlusTreePage::GetMinSize() const 
-{ 
+{
+  if(this->IsRootPage()) 
+       return 2;
+
   return max_size_/2; 
 }
 

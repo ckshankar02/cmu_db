@@ -77,6 +77,7 @@ private:
   template <typename N>
   bool CoalesceOrRedistribute(N *node, Transaction *transaction = nullptr);
 
+
   template <typename N>
   bool Coalesce(
       N *&neighbor_node, N *&node,
@@ -88,6 +89,9 @@ private:
   bool AdjustRoot(BPlusTreePage *node);
 
   void UpdateRootPageId(int insert_record = false);
+
+
+  int CheckMergeSibbling(int parent_index, BPlusTreeInternalPage *parent);
 
   // member variable
   std::string index_name_;

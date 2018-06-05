@@ -156,6 +156,57 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size)
    this->IncreaseSize(size);
 }
 
+
+INDEX_TEMPLATE_ARGUMENTS
+void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveLastNTo(
+BPlusTreeLeafPage *recipient, int move_size,  
+__attribute__((unused)) BufferPoolManager *buffer_pool_manager) 
+{
+    for(int i=this->GetSize()+move_size-1;i>0;i--)
+        this->array[i] = this->array[i-move_size];
+
+    recipient->CopyHalfFrom(this->array, move_size);   
+    this->DecreaseSize(move_size);
+}
+
+INDEX_TEMPLATE_ARGUMENTS
+void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyLastNFrom(MappingType *items, int size) 
+{
+   int start_idx = this->GetSize()-1-size;
+   for(int i=0; i<size; i++)
+   {
+      this->array[i] = items[start_idx];
+      items[start_idx++] = 0;
+   }
+   this->IncreaseSize(size);
+}
+
+
+INDEX_TEMPLATE_ARGUMENTS
+void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstNTo(
+BPlusTreeLeafPage *recipient, int move_size,  
+__attribute__((unused)) BufferPoolManager *buffer_pool_manager) 
+{
+    recipient->CopyHalfFrom(this->array, move_size);   
+
+    int start_idx = 0;
+    for(int i=move_size-1;i<this->GetSize();i++)
+       this->array[start_idx++] = this->array[i];
+
+    this->DecreaseSize(move_size);
+}
+
+INDEX_TEMPLATE_ARGUMENTS
+void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyFirstNFrom(MappingType *items, int size) 
+{
+   int start_index = this->GetSize();
+   
+   for(int i=0; i<size; i++)
+      this->array[start_idx++] = items[i];
+ 
+   this->IncreaseSize(size);
+}
+
 /*****************************************************************************
  * LOOKUP
  *****************************************************************************/
