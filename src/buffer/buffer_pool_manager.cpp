@@ -130,7 +130,7 @@ bool BufferPoolManager::FlushPage(page_id_t page_id) {
 
   //Page Found 
   if(found && tmp_page->page_id_ != INVALID_PAGE_ID && 
-     tmp_page->is_dirty) {
+     tmp_page->is_dirty_) {
     disk_manager_.WritePage(page_id, tmp_page->data_);
     tmp_page->is_dirty_ = false;
     latch_.unlock();
@@ -149,7 +149,7 @@ void BufferPoolManager::FlushAllPages() {
   latch_.lock();
   for(uint64_t i=0;i<pool_size_;i++) {
     if(pages_[i].page_id_ != INVALID_PAGE_ID && 
-       pages_[i].is_dirty) 
+       pages_[i].is_dirty_) 
     { 
         disk_manager_.WritePage(pages_[i].page_id_,
                                 pages_[i].data_);

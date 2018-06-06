@@ -22,7 +22,9 @@
 #include <utility>
 #include <vector>
 
+#include "page/b_plus_tree_internal_page.h"
 #include "page/b_plus_tree_page.h"
+
 
 namespace cmudb {
 #define B_PLUS_TREE_LEAF_PAGE_TYPE                                             \

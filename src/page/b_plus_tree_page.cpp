@@ -11,22 +11,21 @@ namespace cmudb {
  */
 bool BPlusTreePage::IsLeafPage() const 
 {
-  if(this->GetPageType() == IndexPagetype::LEAF_PAGE)
+  if(this->GetPageType() == IndexPageType::LEAF_PAGE)
       return true;
-
   return false;
 }
 
 bool BPlusTreePage::IsRootPage() const 
 {
-  if(this->GetParentId() == NO_PARENT) 
+  if(this->GetParentPageId() == NO_PARENT) 
     return true;
  
   return false;
 }
 
 
-IndexPageType BPlusTree::GetPageType() const
+IndexPageType BPlusTreePage::GetPageType() const
 {
   return this->page_type_;
 }
@@ -113,7 +112,7 @@ void BPlusTreePage::SetPageId(page_id_t page_id)
 
 int BPlusTreePage::GetHeaderSize() const
 {
-  if(this->page_type_ == LEAF_PAGE) 
+  if(this->page_type_ == IndexPageType::LEAF_PAGE) 
       return 24; //24 bytes - Check out header format
   else 
       return 20; //20 bytes

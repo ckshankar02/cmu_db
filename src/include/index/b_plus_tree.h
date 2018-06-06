@@ -93,7 +93,8 @@ private:
   void UpdateRootPageId(int insert_record = false);
 
 
-  int CheckMergeSibbling(int parent_index, BPlusTreeInternalPage *parent);
+  int CheckMergeSibbling(int parent_index, B_PLUS_TREE_INTERNAL_PG_PGID *parent,
+              int cur_node_size, int node_max_size, int &redistribute_idx);
 
   // member variable
   std::string index_name_;

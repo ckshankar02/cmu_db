@@ -227,6 +227,8 @@ utility
 -
 vector
 -
+page/b_plus_tree_internal_page.h
+../src/include/page/page/b_plus_tree_internal_page.h
 page/b_plus_tree_page.h
 ../src/include/page/page/b_plus_tree_page.h
 

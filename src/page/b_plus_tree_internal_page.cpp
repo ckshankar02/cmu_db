@@ -21,7 +21,7 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(page_id_t page_id,
                                           page_id_t parent_id) 
 {
   int max_size = 0;
-  this->SetPageType(INTERNAL_PAGE);
+  this->SetPageType(IndexPageType::INTERNAL_PAGE);
   this->SetSize(0);
   this->SetPageId(page_id);
   this->SetParentPageId(parent_id);
@@ -68,7 +68,7 @@ int B_PLUS_TREE_INTERNAL_PAGE_TYPE::ValueIndex(const ValueType &value) const
 INDEX_TEMPLATE_ARGUMENTS
 ValueType B_PLUS_TREE_INTERNAL_PAGE_TYPE::ValueAt(int index) const 
 { 
-  this->array[index].second;
+  return this->array[index].second;
 }
 
 /*****************************************************************************
@@ -235,7 +235,8 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo(
                               BufferPoolManager *buffer_pool_manager) 
 {
     BPlusTreeInternalPage *parent = 
-                      buffer_pool_manager->FetchPage(this->GetParentPageId());
+        (BPlusTreeInternalPage *)buffer_pool_manager->FetchPage
+                                                    (this->GetParentPageId());
 
     this->array[0].first = parent->array[index_in_parent].first;
     recipient->CopyAllFrom(this->array, this->GetSize(), buffer_pool_manager);
@@ -337,19 +338,11 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf(
     int index_in_parent = parent->ValueIndex(recipient->GetPageId());
 
     recipient->array[0].first = parent->array[index_in_parent].first;
-    for(int i=recipient->GetSize()-1+move_size;
-            i>recipient->GetSize()-1; i--)
-    {
-        recipient->array[i] = recipient->array[i-move_size];
-    }
-    recipient->IncreaseSize(move_size);
-
-    for(int i=this->GetSize()-move_size, j=0;
-            i>this->GetSize();i++,j++)
-    {
+    for(int i=recipient->GetSize()-1;i>=0; i--)
+        recipient->array[i+move_size] = recipient->array[i]; 
+    
+    for(int i=this->GetSize()-move_size,j=0; i<this->GetSize(); i++,j++)
         recipient->CopyFirstFrom(this->array[i], j, buffer_pool_manager);
-    }
-
     this->DecreaseSize(move_size);
 
     parent->array[index_in_parent].first = recipient->array[0].first;

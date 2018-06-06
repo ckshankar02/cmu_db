@@ -155,10 +155,7 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyHalfFrom(MappingType *items, int size)
    int start_idx = this->GetSize()-1-size;
 
    for(int i=0; i<size; i++)
-   {
       this->array[i] = items[start_idx];
-      items[start_idx++] = 0;
-   }
 
    this->IncreaseSize(size);
 }
@@ -335,7 +332,8 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstToEndOf(BPlusTreeLeafPage *recipient,
         this->array[i] = this->array[i+move_size];
     this->DecreaseSize(move_size);
 
-    parent->array[index_in_parent].first = this->array[0].first;
+    parent->SetKeyAt(index_in_parent, this->array[0].first);
+    //parent->array[index_in_parent].first = this->array[0].first;
    
 
     /*BPlusTreeInternalPage *parent = 
@@ -359,8 +357,7 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstToEndOf(BPlusTreeLeafPage *recipient,
 INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyLastFrom(const MappingType &item) 
 {
-    int idx = this->GetSize();
-    this->array[idx] = item;
+    this->array[this->GetSize()] = item;
     this->IncreaseSize(1);
 }
 
@@ -381,22 +378,18 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveLastToFrontOf(
                                                   (this->GetParentPageId());
     int index_in_parent = parent->ValueIndex(recipient->GetPageId());
 
-    for(int i=recipient->GetSize()-1+move_size;
-            i>recipient->GetSize()-1; i--)
-    {
-        recipinet->array[i] = recipient->array[i-move_size];
-    }
+    for(int i = recipient->GetSize()-1; i >= 0; i--)
+        recipient->array[i+move_size] = recipient->array[i];
     recipient->IncreaseSize(move_size);
 
-    for(int i=this->GetSize()-move_size, j=0;
-            i>this->GetSize(); i++; j++)
-    {
+    for(int i=this->GetSize()-move_size, j=0; i<this->GetSize(); i++,j++)
         recipient->CopyFirstFrom(this->array[i], j, buffer_pool_manager);
-    }
-
     this->DecreaseSize(move_size);
 
-    parent->array[index_in_parent].first = recipient->array[0].first;
+
+    parent->SetKeyAt(index_in_parent, recipient->array[0].first);
+
+    //parent->array[index_in_parent].first = recipient->array[0].first;
 
     buffer_pool_manager->UnpinPage(parent->GetPageId(), true);
 
