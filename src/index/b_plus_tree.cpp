@@ -26,14 +26,8 @@ BPLUSTREE_TYPE::BPlusTree(const std::string &name,
 INDEX_TEMPLATE_ARGUMENTS
 bool BPLUSTREE_TYPE::IsEmpty() const 
 { 
-  if(this->GetRootPageId() == INVALID_PAGE_ID) return true;
+  if(this->root_page_id_ == INVALID_PAGE_ID) return true;
   return false; 
-}
-
-INDEX_TEMPLATE_ARGUMENTS
-page_id_t BPLUSTREE_TYPE::GetRootPageId() const 
-{ 
-  return this->root_page_id_;
 }
 
 /*****************************************************************************
@@ -52,7 +46,7 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
     bool res = false;
     BPlusTreePage *page_ptr = 
         (BPlusTreePage *)this->buffer_pool_manager_->FetchPage
-                                                       (this->GetRootPageId());
+                                                       (this->root_page_id_);
 
     page_id_t pg_id;
     ValueType value;
@@ -131,7 +125,7 @@ void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value)
     //root_page->array[0].first = key;
     //root_page->array[0].second = value;
 
-    this->buffer_pool_manager_->UnpinPage(this->GetRootPageId(), true);
+    this->buffer_pool_manager_->UnpinPage(this->root_page_id_, true);
 }
 
 /*
@@ -153,7 +147,7 @@ bool BPLUSTREE_TYPE::InsertIntoLeaf(const KeyType &key, const ValueType &value,
 
 /*    BPlusTreePage *tree_pg = 
         (BPlusTreePage *)this->buffer_pool_manager_->FetchPage
-                                                        (this->GetRootPageId());
+                                                        (this->root_page_id_);
     while(!tree_pg->IsLeafPage())
     {
         temp_value = ((B_PLUS_TREE_INTERNAL_PAGE_TYPE *)tree_pg)->Lookup
@@ -299,8 +293,8 @@ void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node,
 
             this->UpdateRootPageId(false);
 
-            parent_pg->SetParentPageId(this->GetRootPageId());
-            sib_pg->SetParentPageId(this->GetRootPageId());
+            parent_pg->SetParentPageId(this->root_page_id_);
+            sib_pg->SetParentPageId(this->root_page_id_);
 
             new_root_pg->PopulateNewRoot(parent_pg->GetPageId(), 
                                          tmp_key, sib_pg->GetPageId());
@@ -602,7 +596,12 @@ int BPLUSTREE_TYPE::CheckMergeSibbling(int parent_idx,
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin() { return INDEXITERATOR_TYPE(); }
+INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin() 
+{ 
+    KeyType key;
+    B_PLUS_TREE_LEAF_PAGE_TYPE *leaf_pg = this->FindLeafPage(key, true);
+    return INDEXITERATOR_TYPE(); 
+}
 
 /*
  * Input parameter is low key, find the leaf page that contains the input key
@@ -610,7 +609,8 @@ INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin() { return INDEXITERATOR_TYPE(); }
  * @return : index iterator
  */
 INDEX_TEMPLATE_ARGUMENTS
-INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) {
+INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) 
+{
   return INDEXITERATOR_TYPE();
 }
 
@@ -627,7 +627,7 @@ B_PLUS_TREE_LEAF_PAGE_TYPE *BPLUSTREE_TYPE::FindLeafPage(const KeyType &key,
 {   
     BPlusTreePage *page_ptr = 
         (BPlusTreePage*)this->buffer_pool_manager_->FetchPage
-                                                      (this->GetRootPageId());
+                                                      (this->root_page_id_);
     page_id_t pg_id;
 
     while(!page_ptr->IsLeafPage())
@@ -669,14 +669,6 @@ void BPLUSTREE_TYPE::UpdateRootPageId(int insert_record) {
     header_page->UpdateRecord(index_name_, root_page_id_);
   buffer_pool_manager_->UnpinPage(HEADER_PAGE_ID, true);
 }
-
-/* Custom method to return root node's page id*/
-INDEX_TEMPLATE_ARGUMENTS
-page_id_t BPLUSTREE_TYPE::GetRootPageId()
-{
-    return this->root_page_id_;
-}
-
 
 /*
  * This method is used for debug only
