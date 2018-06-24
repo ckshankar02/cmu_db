@@ -406,8 +406,8 @@ std::string B_PLUS_TREE_INTERNAL_PAGE_TYPE::ToString(bool verbose) const {
        << "]<" << GetSize() << "> ";
   }
 
-  int entry = verbose ? 0 : 1;
-  int end = GetSize();
+  int entry  = verbose?0:1;
+  int end    = GetSize();
   bool first = true;
   while (entry < end) {
     if (first) {

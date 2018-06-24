@@ -53,7 +53,7 @@ AddIntoDeletedPageSet	include/concurrency/transaction.h	/^  inline void AddIntoD
 AddIntoPageSet	include/concurrency/transaction.h	/^  inline void AddIntoPageSet(Page *page) { page_set_->push_back(page); }$/;"	f	class:cmudb::Transaction
 AddToFreeList	buffer/buffer_pool_manager.cpp	/^bool BufferPoolManager::AddToFreeList(Page *tmp_page) {$/;"	f	class:cmudb::BufferPoolManager
 AddValue	include/type/integer_parent_type.h	/^Value IntegerParentType::AddValue(const Value &left, const Value &right) const {$/;"	f	class:cmudb::IntegerParentType
-AdjustRoot	index/b_plus_tree.cpp	/^bool BPLUSTREE_TYPE::AdjustRoot(BPlusTreePage *old_root_node) {$/;"	f	class:cmudb::BPLUSTREE_TYPE
+AdjustRoot	index/b_plus_tree.cpp	/^bool BPLUSTREE_TYPE::AdjustRoot(BPlusTreePage *old_root_node) $/;"	f	class:cmudb::BPLUSTREE_TYPE
 AdjustTree	sqlite/sqlite3.c	/^static int AdjustTree($/;"	f	file:
 AggInfo	sqlite/sqlite3.c	/^struct AggInfo {$/;"	s	file:
 AggInfo	sqlite/sqlite3.c	/^typedef struct AggInfo AggInfo;$/;"	t	typeref:struct:AggInfo	file:
@@ -99,7 +99,7 @@ BOOLEAN_COMPARE_FUNC	type/boolean_type.cpp	9;"	d	file:
 BPLUSTREE_INDEX_TYPE	include/index/b_plus_tree_index.h	16;"	d
 BPLUSTREE_TYPE	include/index/b_plus_tree.h	23;"	d
 BPlusTree	include/index/b_plus_tree.h	/^class BPlusTree {$/;"	c	namespace:cmudb
-BPlusTree	index/b_plus_tree.cpp	/^BPLUSTREE_TYPE::BPlusTree(const std::string &name,$/;"	f	class:cmudb::BPLUSTREE_TYPE
+BPlusTree	index/b_plus_tree.cpp	/^BPLUSTREE_TYPE::BPlusTree(const std::string &name, $/;"	f	class:cmudb::BPLUSTREE_TYPE
 BPlusTreeIndex	include/index/b_plus_tree_index.h	/^class BPlusTreeIndex : public Index {$/;"	c	namespace:cmudb
 BPlusTreeIndex	index/b_plus_tree_index.cpp	/^BPLUSTREE_INDEX_TYPE::BPlusTreeIndex(IndexMetadata *metadata,$/;"	f	class:cmudb::BPLUSTREE_INDEX_TYPE
 BPlusTreeInternalPage	include/page/b_plus_tree_internal_page.h	/^class BPlusTreeInternalPage : public BPlusTreePage {$/;"	c	namespace:cmudb
@@ -152,9 +152,10 @@ BTS_SECURE_DELETE	sqlite/sqlite3.c	58901;"	d	file:
 BUCKET_SIZE	include/common/config.h	15;"	d
 BYTESWAP32	sqlite/sqlite3.c	55491;"	d	file:
 B_PLUS_TREE_INTERNAL_PAGE_TYPE	include/page/b_plus_tree_internal_page.h	25;"	d
-B_PLUS_TREE_LEAF_PAGE_TYPE	include/page/b_plus_tree_leaf_page.h	28;"	d
-Begin	index/b_plus_tree.cpp	/^INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin() { return INDEXITERATOR_TYPE(); }$/;"	f	class:cmudb::BPLUSTREE_TYPE
-Begin	index/b_plus_tree.cpp	/^INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) {$/;"	f	class:cmudb::BPLUSTREE_TYPE
+B_PLUS_TREE_INTERNAL_PG_PGID	include/page/b_plus_tree_internal_page.h	28;"	d
+B_PLUS_TREE_LEAF_PAGE_TYPE	include/page/b_plus_tree_leaf_page.h	30;"	d
+Begin	index/b_plus_tree.cpp	/^INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin() $/;"	f	class:cmudb::BPLUSTREE_TYPE
+Begin	index/b_plus_tree.cpp	/^INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) $/;"	f	class:cmudb::BPLUSTREE_TYPE
 BenignMallocHooks	sqlite/sqlite3.c	/^static SQLITE_WSD struct BenignMallocHooks {$/;"	s	file:
 BenignMallocHooks	sqlite/sqlite3.c	/^typedef struct BenignMallocHooks BenignMallocHooks;$/;"	t	typeref:struct:BenignMallocHooks	file:
 BigintType	include/type/bigint_type.h	/^class BigintType : public IntegerParentType {$/;"	c	namespace:cmudb
@@ -275,12 +276,13 @@ CellInfo	sqlite/sqlite3.c	/^struct CellInfo {$/;"	s	file:
 CellInfo	sqlite/sqlite3.c	/^typedef struct CellInfo CellInfo;$/;"	t	typeref:struct:CellInfo	file:
 CheckComparable	type/value.cpp	/^bool Value::CheckComparable(const Value &o) const {$/;"	f	class:cmudb::Value
 CheckInteger	type/value.cpp	/^bool Value::CheckInteger() const {$/;"	f	class:cmudb::Value
+CheckMergeSibbling	index/b_plus_tree.cpp	/^int BPLUSTREE_TYPE::CheckMergeSibbling(int parent_idx, $/;"	f	class:cmudb::BPLUSTREE_TYPE
 ChooseLeaf	sqlite/sqlite3.c	/^static int ChooseLeaf($/;"	f	file:
 CleanPage	buffer/buffer_pool_manager.cpp	/^void BufferPoolManager::CleanPage(Page *tmp_page) {$/;"	f	class:cmudb::BufferPoolManager
 Cleanup	sqlite/sqlite3.c	/^static void Cleanup(Vdbe *p){$/;"	f	file:
 CmpBool	include/type/type.h	/^enum CmpBool { CMP_FALSE = 0, CMP_TRUE = 1, CMP_NULL = 2 };$/;"	g	namespace:cmudb
-Coalesce	index/b_plus_tree.cpp	/^bool BPLUSTREE_TYPE::Coalesce($/;"	f	class:cmudb::BPLUSTREE_TYPE
-CoalesceOrRedistribute	index/b_plus_tree.cpp	/^bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction) {$/;"	f	class:cmudb::BPLUSTREE_TYPE
+Coalesce	index/b_plus_tree.cpp	/^bool BPLUSTREE_TYPE::Coalesce(N *&neighbor_node, N *&node, $/;"	f	class:cmudb::BPLUSTREE_TYPE
+CoalesceOrRedistribute	index/b_plus_tree.cpp	/^bool BPLUSTREE_TYPE::CoalesceOrRedistribute(N *node, Transaction *transaction)$/;"	f	class:cmudb::BPLUSTREE_TYPE
 CollSeq	sqlite/sqlite3.c	/^struct CollSeq {$/;"	s	file:
 CollSeq	sqlite/sqlite3.c	/^typedef struct CollSeq CollSeq;$/;"	t	typeref:struct:CollSeq	file:
 Column	include/catalog/column.h	/^  Column() : column_type(TypeId::INVALID), fixed_length(-1) {$/;"	f	class:cmudb::Column
@@ -363,7 +365,7 @@ Copy	type/tinyint_type.cpp	/^Value TinyintType::Copy(const Value &val) const {$/
 Copy	type/type.cpp	/^Value Type::Copy(const Value &val __attribute__((unused))) const {$/;"	f	class:cmudb::Type
 Copy	type/varlen_type.cpp	/^Value VarlenType::Copy(const Value &val) const { return Value(val); }$/;"	f	class:cmudb::VarlenType
 CopyAllFrom	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyAllFrom($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
-CopyAllFrom	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyAllFrom(MappingType *items, int size) {$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
+CopyAllFrom	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyAllFrom(MappingType *items, int size)$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 CopyFirstFrom	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyFirstFrom($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
 CopyFirstFrom	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::CopyFirstFrom($/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 CopyHalfFrom	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::CopyHalfFrom($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
@@ -422,6 +424,7 @@ DecimalException	include/common/exception.h	/^  DecimalException(std::string msg
 DecimalException	include/common/exception.h	/^class DecimalException : public Exception {$/;"	c	namespace:cmudb
 DecimalType	include/type/decimal_type.h	/^class DecimalType : public NumericType {$/;"	c	namespace:cmudb
 DecimalType	type/decimal_type.cpp	/^DecimalType::DecimalType() : NumericType(TypeId::DECIMAL) {}$/;"	f	class:cmudb::DecimalType
+DecreaseSize	page/b_plus_tree_page.cpp	/^void BPlusTreePage::DecreaseSize(int amount) $/;"	f	class:cmudb::BPlusTreePage
 Deephemeralize	sqlite/sqlite3.c	78811;"	d	file:
 DeleteEntry	include/vtable/virtual_table.h	/^  inline void DeleteEntry(const RID &rid) {$/;"	f	class:cmudb::VirtualTable
 DeleteEntry	index/b_plus_tree_index.cpp	/^void BPLUSTREE_INDEX_TYPE::DeleteEntry(const Tuple &key,$/;"	f	class:cmudb::BPLUSTREE_INDEX_TYPE
@@ -957,7 +960,7 @@ GetIndex	include/vtable/virtual_table.h	/^  inline Index *GetIndex() { return in
 GetIndexColumnCount	include/index/index.h	/^  int GetIndexColumnCount() const { return (int)key_attrs_.size(); }$/;"	f	class:cmudb::IndexMetadata
 GetIndexColumnCount	include/index/index.h	/^  int GetIndexColumnCount() const { return metadata_->GetIndexColumnCount(); }$/;"	f	class:cmudb::Index
 GetInstance	include/type/type.h	/^  inline static Type *GetInstance(TypeId type_id) { return kTypes[type_id]; }$/;"	f	class:cmudb::Type
-GetItem	page/b_plus_tree_leaf_page.cpp	/^const MappingType &B_PLUS_TREE_LEAF_PAGE_TYPE::GetItem(int index) {$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
+GetItem	page/b_plus_tree_leaf_page.cpp	/^const MappingType &B_PLUS_TREE_LEAF_PAGE_TYPE::GetItem(int index) $/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 GetKeyAttrs	include/index/index.h	/^  const std::vector<int> &GetKeyAttrs() const {$/;"	f	class:cmudb::Index
 GetKeyAttrs	include/index/index.h	/^  inline const std::vector<int> &GetKeyAttrs() const { return key_attrs_; }$/;"	f	class:cmudb::IndexMetadata
 GetKeySchema	include/index/index.h	/^  Schema *GetKeySchema() const { return metadata_->GetKeySchema(); }$/;"	f	class:cmudb::Index
@@ -980,7 +983,7 @@ GetMinValue	type/type.cpp	/^Value Type::GetMinValue(TypeId type_id) {$/;"	f	clas
 GetName	include/catalog/column.h	/^  std::string GetName() const { return column_name; }$/;"	f	class:cmudb::Column
 GetName	include/index/index.h	/^  const std::string &GetName() const { return metadata_->GetName(); }$/;"	f	class:cmudb::Index
 GetName	include/index/index.h	/^  inline const std::string &GetName() const { return name_; }$/;"	f	class:cmudb::IndexMetadata
-GetNextPageId	page/b_plus_tree_leaf_page.cpp	/^page_id_t B_PLUS_TREE_LEAF_PAGE_TYPE::GetNextPageId() const {$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
+GetNextPageId	page/b_plus_tree_leaf_page.cpp	/^page_id_t B_PLUS_TREE_LEAF_PAGE_TYPE::GetNextPageId() const $/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 GetNextPageId	page/table_page.cpp	/^page_id_t TablePage::GetNextPageId() {$/;"	f	class:cmudb::TablePage
 GetNextTupleRid	page/table_page.cpp	/^bool TablePage::GetNextTupleRid(const RID &cur_rid, RID &next_rid) {$/;"	f	class:cmudb::TablePage
 GetNumBuckets	hash/extendible_hash.cpp	/^int ExtendibleHash<K, V>::GetNumBuckets() const {$/;"	f	class:cmudb::ExtendibleHash
@@ -992,6 +995,7 @@ GetPageId	include/page/page.h	/^  inline page_id_t GetPageId() { return page_id_
 GetPageId	page/b_plus_tree_page.cpp	/^page_id_t BPlusTreePage::GetPageId() const $/;"	f	class:cmudb::BPlusTreePage
 GetPageId	page/table_page.cpp	/^page_id_t TablePage::GetPageId() {$/;"	f	class:cmudb::TablePage
 GetPageSet	include/concurrency/transaction.h	/^  inline std::shared_ptr<std::deque<Page *>> GetPageSet() { return page_set_; }$/;"	f	class:cmudb::Transaction
+GetPageType	page/b_plus_tree_page.cpp	/^IndexPageType BPlusTreePage::GetPageType() const$/;"	f	class:cmudb::BPlusTreePage
 GetParentPageId	page/b_plus_tree_page.cpp	/^page_id_t BPlusTreePage::GetParentPageId() const $/;"	f	class:cmudb::BPlusTreePage
 GetPinCount	include/page/page.h	/^  inline int GetPinCount() { return pin_count_; }$/;"	f	class:cmudb::Page
 GetPrevPageId	page/table_page.cpp	/^page_id_t TablePage::GetPrevPageId() {$/;"	f	class:cmudb::TablePage
@@ -1070,6 +1074,7 @@ INCRINIT_NORMAL	sqlite/sqlite3.c	88542;"	d	file:
 INCRINIT_ROOT	sqlite/sqlite3.c	88544;"	d	file:
 INCRINIT_TASK	sqlite/sqlite3.c	88543;"	d	file:
 INDEXITERATOR_TYPE	include/index/index_iterator.h	10;"	d
+INDEXITERATOR_TYPE_LEAF	include/index/index_iterator.h	13;"	d
 INDEX_TEMPLATE_ARGUMENTS	include/page/b_plus_tree_page.h	29;"	d
 INSERT	include/concurrency/transaction.h	/^enum class WType { INSERT = 0, DELETE, UPDATE };$/;"	m	class:cmudb::WType
 INT16_TYPE	sqlite/sqlite3.c	12647;"	d	file:
@@ -1079,12 +1084,12 @@ INT8_TYPE	sqlite/sqlite3.c	12663;"	d	file:
 INTEGER	include/type/type_id.h	/^  INTEGER,$/;"	e	enum:cmudb::TypeId
 INTERFACE	sqlite/sqlite3.c	136335;"	d	file:
 INTERFACE	sqlite/sqlite3.c	184056;"	d	file:
-INTERNAL_PAGE	include/page/b_plus_tree_page.h	/^                           INTERNAL_PAGE, ROOT_PAGE };$/;"	m	class:cmudb::IndexPageType
 INT_464269060799999	sqlite/sqlite3.c	19652;"	d	file:
 INT_COMPARE_FUNC	type/integer_type.cpp	11;"	d	file:
 INT_MODIFY_FUNC	type/integer_type.cpp	31;"	d	file:
 INVALID	include/type/type_id.h	/^  INVALID = 0,$/;"	e	enum:cmudb::TypeId
 INVALID_FILE_ATTRIBUTES	sqlite/sqlite3.c	38354;"	d	file:
+INVALID_INDEX	include/common/config.h	18;"	d
 INVALID_INDEX_PAGE	include/page/b_plus_tree_page.h	/^enum class IndexPageType { INVALID_INDEX_PAGE = 0, LEAF_PAGE, $/;"	m	class:cmudb::IndexPageType
 INVALID_PAGE_ID	include/common/config.h	11;"	d
 INVALID_SET_FILE_POINTER	sqlite/sqlite3.c	40686;"	d	file:
@@ -1149,6 +1154,7 @@ IndexPageType	include/page/b_plus_tree_page.h	/^enum class IndexPageType { INVAL
 IndexSample	sqlite/sqlite3.c	/^struct IndexSample {$/;"	s	file:
 IndexSample	sqlite/sqlite3.c	/^typedef struct IndexSample IndexSample;$/;"	t	typeref:struct:IndexSample	file:
 Init	include/page/header_page.h	/^  void Init() { SetRecordCount(0); }$/;"	f	class:cmudb::HeaderPage
+Init	index/index_iterator.cpp	/^void INDEXITERATOR_TYPE::Init(BufferPoolManager *buffer_pool_manager,$/;"	f	class:cmudb::INDEXITERATOR_TYPE
 Init	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Init(page_id_t page_id,$/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
 Init	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(page_id_t page_id, page_id_t parent_id) $/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 Init	page/table_page.cpp	/^void TablePage::Init(page_id_t page_id, size_t page_size,$/;"	f	class:cmudb::TablePage
@@ -1262,7 +1268,7 @@ JsonString	sqlite/sqlite3.c	/^struct JsonString {$/;"	s	file:
 JsonString	sqlite/sqlite3.c	/^typedef struct JsonString JsonString;$/;"	t	typeref:struct:JsonString	file:
 KeccakF1600Step	sqlite/shell.c	/^static void KeccakF1600Step(SHA3Context *p){$/;"	f	file:
 KeyAt	page/b_plus_tree_internal_page.cpp	/^KeyType B_PLUS_TREE_INTERNAL_PAGE_TYPE::KeyAt(int index) const {$/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
-KeyAt	page/b_plus_tree_leaf_page.cpp	/^KeyType B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const {$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
+KeyAt	page/b_plus_tree_leaf_page.cpp	/^KeyType B_PLUS_TREE_LEAF_PAGE_TYPE::KeyAt(int index) const $/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 KeyClass	sqlite/sqlite3.c	/^typedef struct KeyClass KeyClass;$/;"	t	typeref:struct:KeyClass	file:
 KeyIndex	page/b_plus_tree_leaf_page.cpp	/^int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex($/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 KeyInfo	sqlite/sqlite3.c	/^struct KeyInfo {$/;"	s	file:
@@ -1450,7 +1456,7 @@ ModuloValue	include/type/integer_parent_type.h	/^Value IntegerParentType::Modulo
 MoveAllTo	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveAllTo($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
 MoveAllTo	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveAllTo(BPlusTreeLeafPage *recipient,$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 MoveFirstToEndOf	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveFirstToEndOf($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
-MoveFirstToEndOf	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstToEndOf($/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
+MoveFirstToEndOf	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveFirstToEndOf(BPlusTreeLeafPage *recipient,$/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 MoveHalfTo	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveHalfTo($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
 MoveHalfTo	page/b_plus_tree_leaf_page.cpp	/^void B_PLUS_TREE_LEAF_PAGE_TYPE::MoveHalfTo($/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 MoveLastToFrontOf	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::MoveLastToFrontOf($/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
@@ -1492,6 +1498,7 @@ NN	sqlite/sqlite3.c	66286;"	d	file:
 NOT_WITHIN	include/sqlite/sqlite3.h	8726;"	d
 NOT_WITHIN	sqlite/sqlite3.c	9758;"	d	file:
 NO_LOCK	sqlite/sqlite3.c	14553;"	d	file:
+NO_PARENT	include/common/config.h	19;"	d
 NTDDI_WIN8	sqlite/sqlite3.c	38198;"	d	file:
 NTDDI_WINBLUE	sqlite/sqlite3.c	38202;"	d	file:
 NTDDI_WINTHRESHOLD	sqlite/sqlite3.c	38206;"	d	file:
@@ -2091,10 +2098,10 @@ RbuUpdateStmt	sqlite/sqlite3.c	/^struct RbuUpdateStmt {$/;"	s	file:
 RbuUpdateStmt	sqlite/sqlite3.c	/^typedef struct RbuUpdateStmt RbuUpdateStmt;$/;"	t	typeref:struct:RbuUpdateStmt	file:
 ReadPage	disk/disk_manager.cpp	/^void DiskManager::ReadPage(page_id_t page_id, char *page_data) {$/;"	f	class:cmudb::DiskManager
 RecordCompare	sqlite/sqlite3.c	/^typedef int (*RecordCompare)(int,const void*,UnpackedRecord*);$/;"	t	file:
-Redistribute	index/b_plus_tree.cpp	/^void BPLUSTREE_TYPE::Redistribute(N *neighbor_node, N *node, int index) {}$/;"	f	class:cmudb::BPLUSTREE_TYPE
+Redistribute	index/b_plus_tree.cpp	/^void BPLUSTREE_TYPE::Redistribute(N *neighbor_node, N *node, int index) $/;"	f	class:cmudb::BPLUSTREE_TYPE
 Reinsert	sqlite/sqlite3.c	/^static int Reinsert($/;"	f	file:
 Remove	hash/extendible_hash.cpp	/^bool ExtendibleHash<K, V>::Remove(const K &key) {$/;"	f	class:cmudb::ExtendibleHash
-Remove	index/b_plus_tree.cpp	/^void BPLUSTREE_TYPE::Remove(const KeyType &key, Transaction *transaction) {}$/;"	f	class:cmudb::BPLUSTREE_TYPE
+Remove	index/b_plus_tree.cpp	/^void BPLUSTREE_TYPE::Remove(const KeyType &key, Transaction *transaction) $/;"	f	class:cmudb::BPLUSTREE_TYPE
 Remove	page/b_plus_tree_internal_page.cpp	/^void B_PLUS_TREE_INTERNAL_PAGE_TYPE::Remove(int index) $/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
 RemoveAndDeleteRecord	page/b_plus_tree_leaf_page.cpp	/^int B_PLUS_TREE_LEAF_PAGE_TYPE::RemoveAndDeleteRecord($/;"	f	class:cmudb::B_PLUS_TREE_LEAF_PAGE_TYPE
 RemoveAndReturnOnlyChild	page/b_plus_tree_internal_page.cpp	/^ValueType B_PLUS_TREE_INTERNAL_PAGE_TYPE::RemoveAndReturnOnlyChild() $/;"	f	class:cmudb::B_PLUS_TREE_INTERNAL_PAGE_TYPE
@@ -3574,7 +3581,7 @@ SorterList	sqlite/sqlite3.c	/^typedef struct SorterList SorterList;       \/* In
 SorterRecord	sqlite/sqlite3.c	/^struct SorterRecord {$/;"	s	file:
 SorterRecord	sqlite/sqlite3.c	/^typedef struct SorterRecord SorterRecord;   \/* A record being sorted *\/$/;"	t	typeref:struct:SorterRecord	file:
 Split	include/common/string_utility.h	/^  static std::vector<std::string> Split(const std::string &s, char delim) {$/;"	f	class:cmudb::StringUtility
-Split	index/b_plus_tree.cpp	/^template <typename N> N *BPLUSTREE_TYPE::Split(N *node) { return nullptr; }$/;"	f	class:cmudb::BPLUSTREE_TYPE
+Split	index/b_plus_tree.cpp	/^template <typename N> N *BPLUSTREE_TYPE::Split(N *node) $/;"	f	class:cmudb::BPLUSTREE_TYPE
 SplitNode	sqlite/sqlite3.c	/^static int SplitNode($/;"	f	file:
 Sqlite3Config	sqlite/sqlite3.c	/^struct Sqlite3Config {$/;"	s	file:
 Sqrt	include/type/value.h	/^  inline Value Sqrt() const { return Type::GetInstance(type_id_)->Sqrt(*this); }$/;"	f	class:cmudb::Value
@@ -4962,6 +4969,7 @@ buckets	include/hash/extendible_hash.h	/^  std::vector<bucket *> buckets;$/;"	m	
 buf	sqlite/sqlite3.c	/^  Fts5Buffer buf;                 \/* Buffer containing leaf data *\/$/;"	m	struct:Fts5PageWriter	file:
 buf	sqlite/sqlite3.c	/^  Fts5Buffer buf;                 \/* Buffer containing page data *\/$/;"	m	struct:Fts5DlidxWriter	file:
 buf	sqlite/sqlite3.c	/^  SessionBuffer buf;              \/* Current read buffer *\/$/;"	m	struct:SessionInput	file:
+buffer_pool_manager	include/index/index_iterator.h	/^  BufferPoolManager *buffer_pool_manager;$/;"	m	class:cmudb::IndexIterator
 buffer_pool_manager_	include/index/b_plus_tree.h	/^  BufferPoolManager *buffer_pool_manager_;$/;"	m	class:cmudb::BPlusTree
 buffer_pool_manager_	include/table/table_heap.h	/^  BufferPoolManager *buffer_pool_manager_;$/;"	m	class:cmudb::TableHeap
 buffer_pool_manager_	include/vtable/virtual_table.h	/^  BufferPoolManager *buffer_pool_manager_;$/;"	m	struct:cmudb::GlobalParameters
@@ -5316,6 +5324,8 @@ current	sqlite/sqlite3.c	/^  Stat4Sample current;      \/* Current row as a Stat
 currentCount	sqlite/sqlite3.c	/^  u32 currentCount;   \/* Current number of distinct checkouts *\/$/;"	m	struct:Mem5Global	file:
 currentOut	sqlite/sqlite3.c	/^  u32 currentOut;     \/* Current checkout, including internal fragmentation *\/$/;"	m	struct:Mem5Global	file:
 currentTimeFunc	sqlite/sqlite3.c	/^static void currentTimeFunc($/;"	f	file:
+current_index	include/index/index_iterator.h	/^  int current_index;$/;"	m	class:cmudb::IndexIterator
+current_page	include/index/index_iterator.h	/^  B_PLUS_TREE_LEAF_PAGE_TYPE *current_page;$/;"	m	class:cmudb::IndexIterator
 cursorHoldsMutex	sqlite/sqlite3.c	/^static int cursorHoldsMutex(BtCursor *p){$/;"	f	file:
 cursorOwnsBtShared	sqlite/sqlite3.c	/^static int cursorOwnsBtShared(BtCursor *p){$/;"	f	file:
 cycles	sqlite/sqlite3.c	/^  u64 cycles;              \/* Total time spent executing this instruction *\/$/;"	m	struct:VdbeOp	file:
@@ -5526,6 +5536,7 @@ enc	sqlite/sqlite3.c	/^  u8 enc;             \/* Text encoding - one of the SQLI
 end	include/vtable/virtual_table.h	/^  inline TableIterator end() { return table_heap_->end(); }$/;"	f	class:cmudb::VirtualTable
 end	table/table_heap.cpp	/^TableIterator TableHeap::end() {$/;"	f	class:cmudb::TableHeap
 endTimer	sqlite/shell.c	/^static void endTimer(void){$/;"	f	file:
+end_page	include/index/index_iterator.h	/^  B_PLUS_TREE_LEAF_PAGE_TYPE *end_page;$/;"	m	class:cmudb::IndexIterator
 endpoint	sqlite/sqlite3.c	/^  FilePoint endpoint;             \/* Pointer to the end of the file *\/$/;"	m	struct:MemJournal	file:
 enlargeAndAppend	sqlite/sqlite3.c	/^static void SQLITE_NOINLINE enlargeAndAppend(StrAccum *p, const char *z, int N){$/;"	f	file:
 enterMutex	sqlite/sqlite3.c	/^static void enterMutex(void){$/;"	f	file:
@@ -7053,6 +7064,7 @@ isDeferred	sqlite/sqlite3.c	/^  u8 isDeferred;       \/* True if constraint chec
 isDelim	sqlite/sqlite3.c	155300;"	d	file:
 isDirty	sqlite/sqlite3.c	/^  int isDirty;                \/* True if the node needs to be written to disk *\/$/;"	m	struct:RtreeNode	file:
 isDistinctRedundant	sqlite/sqlite3.c	/^static int isDistinctRedundant($/;"	f	file:
+isEnd	index/index_iterator.cpp	/^bool INDEXITERATOR_TYPE::isEnd() $/;"	f	class:cmudb::INDEXITERATOR_TYPE
 isEof	include/vtable/virtual_table.h	/^  inline bool isEof() {$/;"	f	class:cmudb::Cursor
 isEof	sqlite/sqlite3.c	/^  int isEof;                      \/* After pStmt has returned SQLITE_DONE *\/$/;"	m	struct:StatCursor	file:
 isEof	sqlite/sqlite3.c	/^  int isEof;                      \/* True if cursor is at EOF *\/$/;"	m	struct:Fts3auxCursor	file:
@@ -7117,6 +7129,7 @@ is_index_scan_	include/vtable/virtual_table.h	/^  bool is_index_scan_ = false;$/
 is_inlined	include/catalog/column.h	/^  bool is_inlined = false;$/;"	m	class:cmudb::Column
 isatty	sqlite/shell.c	118;"	d	file:
 isatty	sqlite/shell.c	145;"	d	file:
+iter	include/index/b_plus_tree.h	/^  INDEXITERATOR_TYPE iter;$/;"	m	class:cmudb::BPlusTree
 iter	sqlite/sqlite3.c	/^  CInstIter iter;                 \/* Coalesced Instance Iterator *\/$/;"	m	struct:HighlightContext	file:
 ix	sqlite/sqlite3.c	/^  int ix[BMS];                  \/* Cursor assigned to each bit *\/$/;"	m	struct:WhereMaskSet	file:
 ix	sqlite/sqlite3.c	/^  u16 ix;                   \/* Current index for apPage[iPage] *\/$/;"	m	struct:BtCursor	file:
@@ -7222,6 +7235,7 @@ lastErrno	sqlite/sqlite3.c	/^  DWORD lastErrno;        \/* The Windows errno fro
 lastErrno	sqlite/sqlite3.c	/^  int lastErrno;                      \/* The unix errno from last I\/O error *\/$/;"	m	struct:unixFile	file:
 lastRowid	sqlite/sqlite3.c	/^  i64 lastRowid;                \/* ROWID of most recent insert (see above) *\/$/;"	m	struct:sqlite3	file:
 lastRowid	sqlite/sqlite3.c	/^  i64 lastRowid;          \/* Last insert rowid (sqlite3.lastRowid) *\/$/;"	m	struct:VdbeFrame	file:
+last_index	include/index/index_iterator.h	/^  int last_index;$/;"	m	class:cmudb::IndexIterator
 last_insert_rowid	include/sqlite/sqlite3ext.h	/^  sqlite_int64  (*last_insert_rowid)(sqlite3*);$/;"	m	struct:sqlite3_api_routines
 last_insert_rowid	sqlite/sqlite3.c	/^  sqlite_int64  (*last_insert_rowid)(sqlite3*);$/;"	m	struct:sqlite3_api_routines	file:
 last_insert_rowid	sqlite/sqlite3.c	/^static void last_insert_rowid($/;"	f	file:
@@ -8091,8 +8105,10 @@ operator !=	include/catalog/column.h	/^  bool operator!=(const Column &other) co
 operator !=	include/table/table_iterator.h	/^  inline bool operator!=(const TableIterator &itr) const {$/;"	f	class:cmudb::TableIterator
 operator ()	include/common/rid.h	/^  size_t operator()(const cmudb::RID &obj) const {$/;"	f	struct:std::hash
 operator ()	include/index/generic_key.h	/^  inline int operator()(const GenericKey<KeySize> &lhs,$/;"	f	class:cmudb::GenericComparator
+operator *	index/index_iterator.cpp	/^const MappingType INDEXITERATOR_TYPE::operator*() $/;"	f	class:cmudb::INDEXITERATOR_TYPE
 operator *	table/table_iterator.cpp	/^const Tuple &TableIterator::operator*() {$/;"	f	class:cmudb::TableIterator
 operator ++	include/vtable/virtual_table.h	/^  Cursor &operator++() {$/;"	f	class:cmudb::Cursor
+operator ++	index/index_iterator.cpp	/^void INDEXITERATOR_TYPE::operator++() $/;"	f	class:cmudb::INDEXITERATOR_TYPE
 operator ++	table/table_iterator.cpp	/^TableIterator &TableIterator::operator++() {$/;"	f	class:cmudb::TableIterator
 operator ++	table/table_iterator.cpp	/^TableIterator TableIterator::operator++(int) {$/;"	f	class:cmudb::TableIterator
 operator ->	table/table_iterator.cpp	/^Tuple *TableIterator::operator->() {$/;"	f	class:cmudb::TableIterator
@@ -12278,6 +12294,7 @@ sqlite_uint64	sqlite/sqlite3.c	/^  typedef unsigned long long int sqlite_uint64;
 star_oh	sqlite/sqlite3.c	/^static int star_oh(const char *z){$/;"	f	file:
 startEndFlag	sqlite/sqlite3.c	/^  unsigned char startEndFlag;       \/* 1=rel to end of fork, 0=rel to start *\/$/;"	m	struct:ByteRangeLockPB2	file:
 startTime	sqlite/sqlite3.c	/^  i64 startTime;          \/* Time when query started - used for profiling *\/$/;"	m	struct:Vdbe	file:
+start_page	include/index/index_iterator.h	/^  B_PLUS_TREE_LEAF_PAGE_TYPE *start_page;$/;"	m	class:cmudb::IndexIterator
 stat4Destructor	sqlite/sqlite3.c	/^static void stat4Destructor(void *pOld){$/;"	f	file:
 stat4ValueFromExpr	sqlite/sqlite3.c	/^static int stat4ValueFromExpr($/;"	f	file:
 statBestIndex	sqlite/sqlite3.c	/^static int statBestIndex(sqlite3_vtab *tab, sqlite3_index_info *pIdxInfo){$/;"	f	file:
@@ -13699,7 +13716,7 @@ zeroblobFunc	sqlite/sqlite3.c	/^static void zeroblobFunc($/;"	f	file:
 ~DiskManager	disk/disk_manager.cpp	/^DiskManager::~DiskManager() { db_io_.close(); }$/;"	f	class:cmudb::DiskManager
 ~HashTable	include/hash/hash_table.h	/^  virtual ~HashTable() {}$/;"	f	class:cmudb::HashTable
 ~Index	include/index/index.h	/^  virtual ~Index() { delete metadata_; }$/;"	f	class:cmudb::Index
-~IndexIterator	index/index_iterator.cpp	/^INDEXITERATOR_TYPE::~IndexIterator() {}$/;"	f	class:cmudb::INDEXITERATOR_TYPE
+~IndexIterator	index/index_iterator.cpp	/^INDEXITERATOR_TYPE::~IndexIterator() $/;"	f	class:cmudb::INDEXITERATOR_TYPE
 ~IndexMetadata	include/index/index.h	/^  ~IndexMetadata() { delete key_schema_; };$/;"	f	class:cmudb::IndexMetadata
 ~IntegerParentType	include/type/integer_parent_type.h	/^  ~IntegerParentType() {}$/;"	f	class:cmudb::IntegerParentType
 ~IntegerType	include/type/integer_type.h	/^  ~IntegerType() {}$/;"	f	class:cmudb::IntegerType

@@ -65,7 +65,7 @@ int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex(
     cmp_result = comparator(this->array[mid].first, key);
     if(cmp_result == 0)
       return mid;
-    else if(cmp_result < 0)
+    else if(cmp_result > 0)
       sidx = mid+1;
     else
       eidx = mid;
@@ -236,6 +236,8 @@ bool B_PLUS_TREE_LEAF_PAGE_TYPE::Lookup(const KeyType &key, ValueType &value,
   while(sidx <= eidx)
   {
       mid = (sidx+eidx)>>1;
+
+  
       cmp_result = comparator(this->array[mid].first, key);
 
       if(cmp_result == 0) //Key Match Case 
@@ -243,7 +245,7 @@ bool B_PLUS_TREE_LEAF_PAGE_TYPE::Lookup(const KeyType &key, ValueType &value,
         value = this->array[mid].second;
         return true;
       }
-      else if(cmp_result < 0)
+      else if(cmp_result > 0)
         sidx = mid+1;
       else 
         eidx = mid-1;

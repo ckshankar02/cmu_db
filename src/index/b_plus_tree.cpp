@@ -69,7 +69,7 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
         result.push_back(value);
         res = true;
     }
-
+    else 
     this->buffer_pool_manager_->UnpinPage(page_ptr->GetPageId(), false);
     return res;
 }
@@ -117,14 +117,12 @@ void BPLUSTREE_TYPE::StartNewTree(const KeyType &key, const ValueType &value)
         throw "Out of memory!";
 
     this->root_page_id_ = root_page_id;
+    root_page->Init(this->root_page_id_, INVALID_PAGE_ID);
 
     this->UpdateRootPageId(true);
 
     root_page->Insert(key, value, this->comparator_);
   
-    //root_page->array[0].first = key;
-    //root_page->array[0].second = value;
-
     this->buffer_pool_manager_->UnpinPage(this->root_page_id_, true);
 }
 
@@ -284,8 +282,8 @@ void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node,
             page_id_t root_pgid = 0;
             BufferPoolManager *bpm = this->buffer_pool_manager_;
 
-            B_PLUS_TREE_INTERNAL_PAGE_TYPE *new_root_pg = 
-                (B_PLUS_TREE_INTERNAL_PAGE_TYPE *)bpm->NewPage(root_pgid);
+            B_PLUS_TREE_INTERNAL_PG_PGID *new_root_pg = 
+                (B_PLUS_TREE_INTERNAL_PG_PGID *)bpm->NewPage(root_pgid);
         
             new_root_pg->Init(root_pgid, NO_PARENT);
 
@@ -600,7 +598,8 @@ INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin()
 { 
     KeyType key;
     B_PLUS_TREE_LEAF_PAGE_TYPE *leaf_pg = this->FindLeafPage(key, true);
-    return INDEXITERATOR_TYPE(); 
+    iter.Init(this->buffer_pool_manager_, leaf_pg);
+    return iter; 
 }
 
 /*
@@ -611,7 +610,9 @@ INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin()
 INDEX_TEMPLATE_ARGUMENTS
 INDEXITERATOR_TYPE BPLUSTREE_TYPE::Begin(const KeyType &key) 
 {
-  return INDEXITERATOR_TYPE();
+    B_PLUS_TREE_LEAF_PAGE_TYPE *leaf_pg = this->FindLeafPage(key, false);
+    iter.Init(this->buffer_pool_manager_, leaf_pg);
+    return iter; 
 }
 
 /*****************************************************************************
