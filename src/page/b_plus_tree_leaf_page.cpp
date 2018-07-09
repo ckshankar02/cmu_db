@@ -29,7 +29,8 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(page_id_t page_id, page_id_t parent_id)
   this->SetParentPageId(parent_id);
 
   max_size = (PAGE_SIZE-this->GetHeaderSize())/sizeof(MappingType);
-  this->SetMaxSize(max_size);
+  this->SetMaxSize(max_size); 
+  std::cout<<"SCANJEE: max size = "<<max_size<<std::endl;
 }
 
 /**
@@ -65,7 +66,7 @@ int B_PLUS_TREE_LEAF_PAGE_TYPE::KeyIndex(
     cmp_result = comparator(this->array[mid].first, key);
     if(cmp_result == 0)
       return mid;
-    else if(cmp_result > 0)
+    else if(cmp_result < 0)
       sidx = mid+1;
     else
       eidx = mid;
@@ -245,7 +246,7 @@ bool B_PLUS_TREE_LEAF_PAGE_TYPE::Lookup(const KeyType &key, ValueType &value,
         value = this->array[mid].second;
         return true;
       }
-      else if(cmp_result > 0)
+      else if(cmp_result < 0)
         sidx = mid+1;
       else 
         eidx = mid-1;

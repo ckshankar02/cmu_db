@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/scanjee/Desktop/cmudb/src/include/sqlite/sqlite3.h
+/home/shankar/Desktop/cmudb/src/include/sqlite/sqlite3.h
 stdarg.h
 -
 
-/home/scanjee/Desktop/cmudb/src/sqlite/shell.c
+/home/shankar/Desktop/cmudb/src/sqlite/shell.c
 stdlib.h
 -
 string.h
@@ -20,9 +20,9 @@ stdio.h
 assert.h
 -
 ../include/sqlite/sqlite3.h
-/home/scanjee/Desktop/cmudb/src/include/sqlite/sqlite3.h
+/home/shankar/Desktop/cmudb/src/include/sqlite/sqlite3.h
 sqlite3userauth.h
-/home/scanjee/Desktop/cmudb/src/sqlite/sqlite3userauth.h
+/home/shankar/Desktop/cmudb/src/sqlite/sqlite3userauth.h
 ctype.h
 -
 stdarg.h
@@ -42,7 +42,7 @@ readline/history.h
 editline/readline.h
 -
 linenoise.h
-/home/scanjee/Desktop/cmudb/src/sqlite/linenoise.h
+/home/shankar/Desktop/cmudb/src/sqlite/linenoise.h
 io.h
 -
 fcntl.h

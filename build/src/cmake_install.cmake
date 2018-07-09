@@ -1,4 +1,4 @@
-# Install script for directory: /home/scanjee/Desktop/cmudb/src
+# Install script for directory: /home/shankar/Desktop/cmudb/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

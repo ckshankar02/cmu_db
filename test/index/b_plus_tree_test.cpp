@@ -33,9 +33,11 @@ TEST(BPlusTreeTests, InsertTest1) {
   auto header_page = bpm->NewPage(page_id);
   (void)header_page;
 
+  //std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
+    std::cout<<"scanjee - value = "<<value<<std::endl;
     rid.Set((int32_t)(key >> 32), value);
     index_key.SetFromInteger(key);
     tree.Insert(index_key, rid, transaction);
@@ -46,24 +48,39 @@ TEST(BPlusTreeTests, InsertTest1) {
     rids.clear();
     index_key.SetFromInteger(key);
     tree.GetValue(index_key, rids);
+	
+    std::cout<<"scanjee: rid_size = "<<rids.size()<<std::endl;
+    std::cout<<"scanjee: rids[0].GetSlotNum = "<<rids[0].GetSlotNum()<<std::endl;
+
     EXPECT_EQ(rids.size(), 1);
 
     int64_t value = key & 0xFFFFFFFF;
     EXPECT_EQ(rids[0].GetSlotNum(), value);
   }
 
-  int64_t start_key = 1;
-  int64_t current_key = start_key;
-  index_key.SetFromInteger(start_key);
+
+  //int64_t start_key = 1;
+  //int64_t current_key = start_key;
+  /*index_key.SetFromInteger(start_key);
   for (auto iterator = tree.Begin(index_key); iterator.isEnd() == false;
        ++iterator) {
     auto location = (*iterator).second;
     EXPECT_EQ(location.GetPageId(), 0);
     EXPECT_EQ(location.GetSlotNum(), current_key);
     current_key = current_key + 1;
+  }*/
+
+  /*for (auto key : keys) {
+    rids.clear();
+    index_key.SetFromInteger(key);
+    tree.GetValue(index_key, rids);
+    auto location = rids[0];
+    EXPECT_EQ(location.GetPageId(), 0);
+    EXPECT_EQ(location.GetSlotNum(), current_key);
+    current_key = current_key + 1;
   }
 
-  EXPECT_EQ(current_key, keys.size() + 1);
+  EXPECT_EQ(current_key, keys.size() + 1);*/
 
   bpm->UnpinPage(HEADER_PAGE_ID, true);
   delete bpm;

@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/scanjee/Desktop/cmudb
+CMAKE_SOURCE_DIR = /home/shankar/Desktop/cmudb
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/scanjee/Desktop/cmudb/build
+CMAKE_BINARY_DIR = /home/shankar/Desktop/cmudb/build
 
 # Utility rule file for check.
 
@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/scanjee/Desktop/cmudb/build
 include test/CMakeFiles/check.dir/progress.make
 
 test/CMakeFiles/check:
-	cd /home/scanjee/Desktop/cmudb/build/test && /usr/bin/ctest --verbose
+	cd /home/shankar/Desktop/cmudb/build/test && /usr/bin/ctest --verbose
 
 check: test/CMakeFiles/check
 check: test/CMakeFiles/check.dir/build.make
@@ -67,10 +67,10 @@ test/CMakeFiles/check.dir/build: check
 .PHONY : test/CMakeFiles/check.dir/build
 
 test/CMakeFiles/check.dir/clean:
-	cd /home/scanjee/Desktop/cmudb/build/test && $(CMAKE_COMMAND) -P CMakeFiles/check.dir/cmake_clean.cmake
+	cd /home/shankar/Desktop/cmudb/build/test && $(CMAKE_COMMAND) -P CMakeFiles/check.dir/cmake_clean.cmake
 .PHONY : test/CMakeFiles/check.dir/clean
 
 test/CMakeFiles/check.dir/depend:
-	cd /home/scanjee/Desktop/cmudb/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/scanjee/Desktop/cmudb /home/scanjee/Desktop/cmudb/test /home/scanjee/Desktop/cmudb/build /home/scanjee/Desktop/cmudb/build/test /home/scanjee/Desktop/cmudb/build/test/CMakeFiles/check.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/shankar/Desktop/cmudb/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/shankar/Desktop/cmudb /home/shankar/Desktop/cmudb/test /home/shankar/Desktop/cmudb/build /home/shankar/Desktop/cmudb/build/test /home/shankar/Desktop/cmudb/build/test/CMakeFiles/check.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : test/CMakeFiles/check.dir/depend
 

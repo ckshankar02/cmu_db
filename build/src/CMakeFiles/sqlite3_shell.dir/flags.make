@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = -DSQLITE_THREADSAFE=2
 
-C_INCLUDES = -I/home/scanjee/Desktop/cmudb/src -I/home/scanjee/Desktop/cmudb/src/include -I/home/scanjee/Desktop/cmudb/test/include -I/home/scanjee/Desktop/cmudb/third_party 
+C_INCLUDES = -I/home/shankar/Desktop/cmudb/src -I/home/shankar/Desktop/cmudb/src/include -I/home/shankar/Desktop/cmudb/test/include -I/home/shankar/Desktop/cmudb/third_party 
 

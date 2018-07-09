@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/scanjee/Desktop/cmudb
+CMAKE_SOURCE_DIR = /home/shankar/Desktop/cmudb
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/scanjee/Desktop/cmudb/build
+CMAKE_BINARY_DIR = /home/shankar/Desktop/cmudb/build
 
 # Utility rule file for NightlyUpdate.
 
@@ -71,6 +71,6 @@ CMakeFiles/NightlyUpdate.dir/clean:
 .PHONY : CMakeFiles/NightlyUpdate.dir/clean
 
 CMakeFiles/NightlyUpdate.dir/depend:
-	cd /home/scanjee/Desktop/cmudb/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/scanjee/Desktop/cmudb /home/scanjee/Desktop/cmudb /home/scanjee/Desktop/cmudb/build /home/scanjee/Desktop/cmudb/build /home/scanjee/Desktop/cmudb/build/CMakeFiles/NightlyUpdate.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/shankar/Desktop/cmudb/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/shankar/Desktop/cmudb /home/shankar/Desktop/cmudb /home/shankar/Desktop/cmudb/build /home/shankar/Desktop/cmudb/build /home/shankar/Desktop/cmudb/build/CMakeFiles/NightlyUpdate.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/NightlyUpdate.dir/depend
 

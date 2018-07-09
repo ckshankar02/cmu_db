@@ -1,6 +1,6 @@
 # CMake generated Testfile for 
-# Source directory: /home/scanjee/Desktop/cmudb
-# Build directory: /home/scanjee/Desktop/cmudb/build
+# Source directory: /home/shankar/Desktop/cmudb
+# Build directory: /home/shankar/Desktop/cmudb/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
