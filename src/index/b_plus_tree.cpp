@@ -2,6 +2,8 @@
  * b_plus_tree.cpp
  */
 #include <iostream>
+#include <queue>
+#include <sstream>
 #include <string>
 
 #include "common/exception.h"
@@ -9,6 +11,7 @@
 #include "common/rid.h"
 #include "index/b_plus_tree.h"
 #include "page/header_page.h"
+#include "page/b_plus_tree_internal_page.h"
 
 namespace cmudb {
 
@@ -61,6 +64,10 @@ bool BPLUSTREE_TYPE::GetValue(const KeyType &key,
 
         page_ptr = 
               (BPlusTreePage *)this->buffer_pool_manager_->FetchPage(pg_id);
+	
+		std::cout<<"pid:"<<pg_id<<std::endl;
+	
+		assert(page_ptr != NULL);
     }
 
     if(((B_PLUS_TREE_LEAF_PAGE_TYPE *)page_ptr)->Lookup
@@ -174,7 +181,7 @@ bool BPLUSTREE_TYPE::InsertIntoLeaf(const KeyType &key, const ValueType &value,
 
     /* Page/Node is not full */
     if(leaf_pg->GetSize() < leaf_pg->GetMaxSize())
-        std::cout<<"SCANJEE:"<<leaf_pg->Insert(key, value, this->comparator_)<<std::endl;
+        leaf_pg->Insert(key, value, this->comparator_);
     else
     {
         /* Node is max'ed out, need to split */
@@ -272,13 +279,13 @@ void BPLUSTREE_TYPE::InsertIntoParent(BPlusTreePage *old_node,
 
     if(old_node->IsRootPage())
     {
-	parent_pg = this->GetNewRoot();
-	old_node->SetParentPageId(parent_pg->GetPageId());
-	new_node->SetParentPageId(parent_pg->GetPageId());
-	parent_pg->PopulateNewRoot(old_node->GetPageId(), key, 
+		parent_pg = this->GetNewRoot();
+		old_node->SetParentPageId(parent_pg->GetPageId());
+		new_node->SetParentPageId(parent_pg->GetPageId());
+		parent_pg->PopulateNewRoot(old_node->GetPageId(), key, 
 					new_node->GetPageId());
         this->buffer_pool_manager_->UnpinPage(this->root_page_id_, true);
-	return;	
+		return;	
     }
     else
     {	
@@ -717,20 +724,48 @@ void BPLUSTREE_TYPE::UpdateRootPageId(int insert_record) {
  */
 INDEX_TEMPLATE_ARGUMENTS
 std::string BPLUSTREE_TYPE::ToString(bool verbose) 
-{   
-    std::vector<page_id_t> pgids;
-    BPlusTreePage *tmp_pg = 
-        (BPlusTreePage*)this->buffer_pool_manager_->FetchPage
-                                                      (this->root_page_id_);
-   
-    while(!tmp_pg->IsLeaf())
-    {
-	tmp_pg->ToString(verbose);
-	for(int i = 0; i < tmp_pg->GetSize(); i++)
-	  push_back(tmp_pg->ValueAt(i));
-    }
+{  
+	std::ostringstream os; 
+    std::queue<page_id_t> pgids;
 
- 
+    pgids.push(this->root_page_id_);
+	pgids.push(INVALID_PAGE_ID);
+
+    BPlusTreePage *tmp_pg; 
+   
+    while(!pgids.empty())
+    {
+		std::cout<<pgids.front()<<std::endl;
+		if(pgids.front() == INVALID_PAGE_ID)
+		{
+ 			pgids.pop();
+			os << "\n";	
+		}
+		else		
+		{
+			tmp_pg = (BPlusTreePage *)this->buffer_pool_manager_->FetchPage
+															(pgids.front());
+
+			if(!tmp_pg->IsLeafPage())
+			{
+				//os << ((B_PLUS_TREE_INTERNAL_PG_PGID *)tmp_pg)->ToString(verbose);
+				for(int i = 0; i < tmp_pg->GetSize(); i++)
+				{
+	  				pgids.push(((B_PLUS_TREE_INTERNAL_PG_PGID *)tmp_pg)->ValueAt(i));
+				}
+			}
+			else
+			{
+				os << ((B_PLUS_TREE_LEAF_PAGE_TYPE *)tmp_pg)->ToString(verbose);
+			}
+
+			pgids.push(INVALID_PAGE_ID);
+			this->buffer_pool_manager_->UnpinPage(pgids.front(), false);
+			pgids.pop();
+		}
+    }
+	std::cout<<std::endl;
+	return os.str(); 
 }
 
 

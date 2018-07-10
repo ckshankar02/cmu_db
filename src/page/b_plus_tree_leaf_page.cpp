@@ -30,7 +30,6 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::Init(page_id_t page_id, page_id_t parent_id)
 
   max_size = (PAGE_SIZE-this->GetHeaderSize())/sizeof(MappingType);
   this->SetMaxSize(max_size); 
-  std::cout<<"SCANJEE: max size = "<<max_size<<std::endl;
 }
 
 /**

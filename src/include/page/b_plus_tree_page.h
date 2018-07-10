@@ -60,6 +60,7 @@ public:
   //Custome Helper methods
   //Returns the size of the header for leaf/internal pages
   int GetHeaderSize() const;
+
 private:
   // member variable, attributes that both internal and leaf page share
   IndexPageType page_type_;

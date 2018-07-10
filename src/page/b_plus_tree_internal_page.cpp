@@ -137,6 +137,8 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::PopulateNewRoot(
     this->array[0].second = old_value;
     this->array[1].first  = new_key;
     this->array[1].second = new_value;
+	this->IncreaseSize(2);
+	std::cout<<"Root Populated \n";
 }
   
 /*
