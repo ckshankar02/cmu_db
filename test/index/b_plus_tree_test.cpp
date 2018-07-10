@@ -37,16 +37,22 @@ TEST(BPlusTreeTests, InsertTest1) {
   std::vector<int64_t> keys = {1, 2, 3, 4, 5};
   for (auto key : keys) {
     int64_t value = key & 0xFFFFFFFF;
-    std::cout<<"scanjee - value = "<<value<<std::endl;
     rid.Set((int32_t)(key >> 32), value);
     index_key.SetFromInteger(key);
     tree.Insert(index_key, rid, transaction);
   }
 
+  std::cout<<tree.ToString(true);
+
+  std::cout<<std::endl<<"==-=-=-=-=-=-=-=-=="<<std::endl;
+
   std::vector<RID> rids;
   for (auto key : keys) {
     rids.clear();
     index_key.SetFromInteger(key);
+
+	std::cout<<"Looking for key = "<<key;	
+
     tree.GetValue(index_key, rids);
 	
     std::cout<<"scanjee: rid_size = "<<rids.size()<<std::endl;
